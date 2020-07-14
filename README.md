@@ -40,6 +40,7 @@ In the case of the FreeRTOS, this correspondence is particular to the CMSIS-RTOS
 FreeRTOS | CMSIS Core |
 -------- | ---------- |
 Tag v10.0.1 | Tag v5.4.0
+Tag v10.2.1 | Tag v5.4.0
 
 ## Troubleshooting
 

@@ -27,9 +27,9 @@ This software component is licensed by Amazon.com under the **MIT open source** 
 
 ## Release note
 
-Details about the content of this release are available in the release note [here](https://www.freertos.org/History.txt).
+Details about the content of this release are available in the release note [here](./Source/History.txt).
 
-Details about the updates made by STMicroelectronics are available in the release note [here](https://github.com/STMicroelectronics/stm32_mw_freertos/blob/master/Source/st_readme.txt).
+Details about the updates made by STMicroelectronics are available in the release note [here](./Source/st_readme.txt).
 
 ## Compatibility information
 
@@ -41,6 +41,7 @@ FreeRTOS | CMSIS Core |
 -------- | ---------- |
 Tag v10.0.1 | Tag v5.4.0
 Tag v10.2.1 | Tag v5.4.0
+Tag v10.3.1 | Tag v5.6.0
 
 ## Troubleshooting
 

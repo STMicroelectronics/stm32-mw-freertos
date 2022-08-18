@@ -42,6 +42,7 @@ FreeRTOS | CMSIS Core |
 Tag v10.0.1 | Tag v5.4.0
 Tag v10.2.1 | Tag v5.4.0
 Tag v10.3.1 | Tag v5.6.0
+Tag v10.4.6 | Tag v5.6.0
 
 ## Troubleshooting
 

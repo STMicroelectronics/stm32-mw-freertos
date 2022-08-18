@@ -1,6 +1,8 @@
 /*
- * FreeRTOS Kernel V10.3.1
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.4.6
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,11 +21,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
+ * https://www.FreeRTOS.org
+ * https://github.com/FreeRTOS
  *
- * 1 tab == 4 spaces!
  */
+/* Including FreeRTOSConfig.h here will cause build errors if the header file
+contains code not understood by the assembler - for example the 'extern' keyword.
+To avoid errors place any such code inside a #ifdef __ICCARM__/#endif block so
+the code is included in C files but excluded by the preprocessor in assembly
+files (__ICCARM__ is defined by the IAR C compiler but not by the IAR assembler. */
+#include "FreeRTOSConfig.h"
 
 	EXTERN pxCurrentTCB
 	EXTERN vTaskSwitchContext

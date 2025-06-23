@@ -96,19 +96,4 @@ void PendSV_Handler( void ) __attribute__( ( naked ) ) PRIVILEGED_FUNCTION;
  */
 void SVC_Handler( void ) __attribute__( ( naked ) ) PRIVILEGED_FUNCTION;
 
-/**
- * @brief Allocate a Secure context for the calling task.
- *
- * @param[in] ulSecureStackSize The size of the stack to be allocated on the
- * secure side for the calling task.
- */
-void vPortAllocateSecureContext( uint32_t ulSecureStackSize ) __attribute__( ( naked ) );
-
-/**
- * @brief Free the task's secure context.
- *
- * @param[in] pulTCB Pointer to the Task Control Block (TCB) of the task.
- */
-void vPortFreeSecureContext( uint32_t * pulTCB ) __attribute__( ( naked ) ) PRIVILEGED_FUNCTION;
-
 #endif /* __PORT_ASM_H__ */

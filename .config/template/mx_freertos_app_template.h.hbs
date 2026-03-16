@@ -1,0 +1,136 @@
+{{!--
+  ******************************************************************************
+  * @file           : mx_freertos_app_template.h.hbs
+  * @brief          : Header for mx_freertos_app.c_template.c.hbs file.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  ~--}}
+{{assign 'rtosFilter' (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "FreeRTOS"}')~}}
+{{assign 'rtos_context' (@root.SWConfigurationAPI.getInstancesConfiguration @root.rtosFilter)~}}
+{{assign 'rtos_cxt' @root.rtos_context.[0].settings.parameters~}}
+{{log "RTOS Config template rtos_cxt:" (toJSON @root.rtos_cxt)~}}
+/**
+  ******************************************************************************
+  * file           : mx_freertos_app.h
+  * brief          : Header for mx_freertos_app.c
+{{> LICENSE}}
+
+/* Define to prevent recursive inclusion --------------------------------------*/
+#ifndef MX_FREERTOS_APP_H
+#define MX_FREERTOS_APP_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#include <inttypes.h>       /* PRIx8 macros family */
+#include <stdio.h>          /* printf */
+#include "mx_hal_def.h"  /* aliases to the target-specific generated code */
+#include "FreeRTOS.h"
+#include "task.h"
+{{#with @root.rtos_cxt~}}
+{{~#with core}}
+{{#with applicative}}
+{{#if (or queues.length queue_sets.length)}}
+#include "queue.h"
+{{/if}}
+{{#if (or counting_semaphores.length binary_semaphores.length recursive_mutexes.length mutexes.length)}}
+#include "semphr.h"
+{{/if}}
+{{#if timers}}
+#include "timers.h"
+{{/if}}
+{{#if events}}
+#include "event_groups.h"
+{{/if}}
+{{#if stream_buffers}}
+#include "stream_buffer.h"
+{{/if}}
+{{/with}}
+{{/with}}
+
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+/* Exported variables --------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
+int32_t app_synctasks_init(void);
+{{#with core~}}
+{{#with basic~}}
+{{#with memory_management~}}
+{{#with more~}}
+{{#if heap_protector}}
+/* Heap Canary Random Value function -----------------------------------------*/
+void vApplicationGetRandomHeapCanary( portPOINTER_SIZE_TYPE * pxHeapCanary);
+{{/if~}}
+{{~/with~}}
+{{~/with~}}
+{{#with advanced_configuration_parameters_selector~}}
+{{#with hook_selector~}}
+{{#if (or use_idle_hook use_tick_hook use_malloc_failed_hook use_daemon_task_startup_hook (eq check_for_stack_overflow '1') (eq check_for_stack_overflow '2'))}}
+/* Hook function -------------------------------------------------------------*/
+{{#if use_idle_hook}}
+void vApplicationIdleHook (void);
+{{/if}}
+{{#if use_tick_hook}}
+void vApplicationTickHook (void);
+{{/if}}
+{{#if use_malloc_failed_hook}}
+void vApplicationMallocFailedHook (void);
+{{/if}}
+{{#if use_daemon_task_startup_hook}}
+void vApplicationDaemonTaskStartupHook (void);
+{{/if}}
+{{#if (eq check_for_stack_overflow '1')}}
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char * pcTaskName);
+{{/if}}
+{{#if (eq check_for_stack_overflow '2')}}
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char * pcTaskName);
+{{/if}}
+{{/if}}
+{{~/with~}}
+{{#with task_statistics_and_run_time_selector~}}
+{{#if (or generate_run_time_stats)~}}
+/* Run Time Counter functions ------------------------------------------------*/
+{{#if generate_run_time_stats}}
+void ConfigRunTimeCounter (void);
+uint64_t GetRunTimeCounterValue (void);
+{{/if}}
+{{~/if~}}
+{{~/with~}}
+{{~/with~}}
+{{/with}}
+{{#with security~}}
+{{#if pac}}
+/* Generate 128-bit random PAC key function ---------------------------------*/
+void vApplicationGenerateTaskRandomPacKey( uint32_t * pulTaskPacKey );
+{{/if}}
+{{~/with~}}
+{{/with}}
+{{/with}}
+
+/** logging macro - just redirects to printf()
+  * libc's stdout is redirected to UART thanks to the Basic stdio utility.
+  *
+  * @user You can enable logs by defining USE_TRACE=1 in the build options.
+  */
+#if defined(USE_TRACE) && USE_TRACE != 0
+#define PRINTF(...)    printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif /* defined(USE_TRACE) && USE_TRACE != 0 */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* MX_FREERTOS_APP_H */

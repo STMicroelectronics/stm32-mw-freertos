@@ -1,0 +1,2067 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "version": "0.0.1",
+  "componentid": "::RTOS:STM32CubeMX2 Config:FreeRTOS",
+  "type": "object",
+  "grammarVersion": "3.8.0",
+  "functions": [
+    {
+      "path": ".config/template/helpers/freertos_helpers.js",
+      "accessor": "common"
+    }
+  ],
+  "properties": {
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "type": "object",
+          "title": "General information",
+          "properties": {
+            "version": {
+              "title": "FreeRTOS version",
+              "type": "string",
+              "default": "11.2.0",
+              "actions": [
+                {
+                  "type": "disable",
+                  "condition": "true"
+                }
+              ]
+            },
+            "timebase": {
+              "title": "FreeRTOS timebase",
+              "type": "string",
+              "default": "SysTick",
+              "actions": [
+                {
+                  "type": "disable",
+                  "condition": "true"
+                },
+                {
+                  "type": "warning",
+                  "condition": "$get('envVar.value', 'CORE_PROJECT_TIMEBASE') == 'SYSTICK'",
+                  "message": "FreeRTOS uses the SysTick timer. Please select a different timebase source for the HAL. To do this, go to \"Project settings\", then \"Global services\", select \"HAL common definitions\", and choose another HAL timebase under the \"HAL common\" menu."
+                }
+              ]
+            }
+          }
+        },
+        "profile": {
+          "title": "Profile",
+          "type": "object",
+          "properties": {
+            "profile_type": {
+              "title": "Profile selection",
+              "type": "string",
+              "oneOf": [
+                {
+                  "title": "Default",
+                  "const": "DEFAULT"
+                },
+                {
+                  "title": "Low footprint",
+                  "const": "LOW_FOOTPRINT",
+                  "actions": [
+                    {
+                      "type": "disable",
+                      "condition": "true"
+                    }
+                  ]
+                },
+                {
+                  "title": "Low power",
+                  "const": "LOW_POWER",
+                  "actions": [
+                    {
+                      "type": "disable",
+                      "condition": "true"
+                    }
+                  ]
+                }
+              ],
+              "default": "DEFAULT"
+            }
+          }
+        },
+        "core": {
+          "type": "object",
+          "title": "Core",
+          "properties": {
+            "basic": {
+              "type": "object",
+              "title": "Main features",
+              "properties": {
+                "kernel": {
+                  "type": "object",
+                  "title": "Kernel",
+                  "properties": {
+                    "mpu_mode": {
+                      "type": "boolean",
+                      "title": "MPU mode",
+                      "description": "Set configENABLE_MPU to 1 to enable the Memory Protection Unit (MPU) or 0 to leave the MPU disabled.",
+                      "default": false,
+                      "actions": [
+                        {
+                          "type": "exclude",
+                          "condition": "!$get('hwPlatform.device').cores[0].mpu"
+                        },
+                        {
+                          "type": "disable",
+                          "condition": "true"
+                        }
+                      ]
+                    },
+                    "fpu_mode": {
+                      "type": "boolean",
+                      "title": "FPU mode",
+                      "description": "Set configENABLE_FPU to 1 to enable the Floating Point Unit (FPU) support or 0 to leave the FPU support disabled.",
+                      "default": false,
+                      "actions": [
+                        {
+                          "type": "exclude",
+                          "condition": "$get('hwPlatform.device').cores[0].fpu == 'NO_FPU'"
+                        }
+                      ]
+                    },
+                    "tickless_mode": {
+                      "title": "Tickless mode",
+                      "description": "Select the tickless mode to be used by the RTOS kernel to reduce power consumption during idle periods.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "scheduling_mode": {
+                      "title": "Task scheduling mode",
+                      "type": "string",
+                      "description": "Select the task scheduling mode used by the RTOS kernel. Preemptive allows tasks to interrupt each other, while cooperative requires tasks to yield control.",
+                      "oneOf": [
+                        {
+                          "const": "PREEMPTIVE",
+                          "title": "Preemptive"
+                        },
+                        {
+                          "const": "COOPERATIVE",
+                          "title": "Cooperative"
+                        }
+                      ],
+                      "default": "PREEMPTIVE"
+                    },
+                    "use_time_slicing": {
+                      "title": "Use time slicing",
+                      "type": "boolean",
+                      "description": "Set configUSE_TIME_SLICING to 1 to have tasks of equal priority share processing time (time slice) or 0 to have tasks of equal priority run until they block, yield, or are preempted by a higher priority task.",
+                      "default": true
+                    },
+                    "minimum_stack_size": {
+                      "type": "integer",
+                      "title": "Minimum stack size",
+                      "description": "Set the stack size allocated to the idle task. The value is specified in words (here, of 32 bits), not bytes.",
+                      "unit": "words",
+                      "default": 128,
+                      "minimum": 64,
+                      "maximum": 2048,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "minimum_secure_stack_size": {
+                      "type": "integer",
+                      "title": "Minimum secure stack size",
+                      "description": "Set the stack size allocated to the secure idle task when TrustZone is enabled. The value is specified in words (here, of 32 bits), not bytes.",
+                      "default": 128,
+                      "minimum": 64,
+                      "maximum": 2048,
+                      "actions": [
+                        {
+                          "type": "include",
+                          "condition": "$core.security.trustzone"
+                        }
+                      ],
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "max_priorities": {
+                      "title": "Maximum task priorities",
+                      "type": "integer",
+                      "description": "Sets the number of available task priorities. Tasks can be assigned priorities of 0 to (configMAX_PRIORITIES - 1). Zero is the lowest priority.",
+                      "minimum": 1,
+                      "maximum": 128,
+                      "default": 32,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "mutexes": {
+                      "type": "boolean",
+                      "title": "Mutexes",
+                      "default": true,
+                      "description": "Set to 1 to include mutex functionality in the build, or 0 to omit mutex functionality from the build."
+                    },
+                    "recursive_mutexes": {
+                      "type": "boolean",
+                      "title": "Recursive mutexes",
+                      "default": true,
+                      "description": "Set to 1 to include recursive mutex functionality in the build, or 0 to omit recursive mutex functionality from the build.",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "(!$core.basic.kernel.mutexes) && ($core.basic.kernel.recursive_mutexes)",
+                          "message": "Mutexes must be set to 1 to use recursive mutexes."
+                        }
+                      ]
+                    },
+                    "counting_semaphores": {
+                      "type": "boolean",
+                      "title": "Counting semaphores",
+                      "default": true,
+                      "description": "Set to 1 to include counting semaphore functionality in the build, or 0 to omit counting semaphore functionality from the build."
+                    },
+                    "notifications": {
+                      "type": "boolean",
+                      "title": "Notifications",
+                      "default": true,
+                      "description": "Set to 1 to include notification functionality in the build, or 0 to omit notification functionality from the build.",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "(!$core.basic.kernel.notifications) && ($core.basic.kernel.stream_buffers)",
+                          "message": "Enable notifications in the kernel panel when using stream buffers."
+                        }
+                      ]
+                    },
+                    "queue_sets": {
+                      "type": "boolean",
+                      "title": "Queue sets",
+                      "default": true,
+                      "description": "Set to 1 to include Queue set functionality in the build, or 0 to omit Queue set functionality from the build."
+                    },
+                    "queue_size": {
+                      "type": "integer",
+                      "title": "Queue size",
+                      "description": "The maximum queue size to be used when queue object is created. Set configQUEUE_REGISTRY_SIZE to the maximum number of queues and semaphores that can be referenced from the queue registry.  Only required when using a kernel aware debugger.",
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.kernel.queue_sets"
+                        }
+                      ],
+                      "minimum": 0,
+                      "maximum": 255,
+                      "default": 8,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "event_groups": {
+                      "type": "boolean",
+                      "title": "Event groups",
+                      "description": "Set configUSE_EVENT_GROUPS to 1 to include event group functionality in the build. Set to 0 to exclude event group functionality from the build. The FreeRTOS/source/event_groups.c source file must be included in the build if configUSE_EVENT_GROUPS is set to 1. Defaults to 1 if left undefined.",
+                      "default": true
+                    },
+                    "stream_buffers": {
+                      "type": "boolean",
+                      "title": "Stream buffers",
+                      "description": "Set configUSE_STREAM_BUFFERS to 1 to include stream buffer functionality in the build. Set to 0 to exclude event group functionality from the build. The FreeRTOS/source/stream_buffer.c source file must be included in the build if configUSE_STREAM_BUFFERS is set to 1. Defaults to 1 if left undefined.",
+                      "variables": [
+                        {
+                          "on": "update-value",
+                          "condition": "$value == true",
+                          "name": "stream_buffers",
+                          "value": true
+                        }
+                      ],
+                      "default": false
+                    },
+                    "software_timer": {
+                      "type": "boolean",
+                      "title": "Software timer",
+                      "default": true,
+                      "actions": [
+                        {
+                          "type": "set",
+                          "condition": "!$core.basic.advanced_api_selector.more.xTaskGetSchedulerState ",
+                          "computed": {
+                            "const": "true"
+                          }
+                        },
+                        {
+                          "type": "set",
+                          "condition": "$core.basic.advanced_api_selector.more.xTimerPendFunctionCall ",
+                          "computed": {
+                            "const": "true"
+                          }
+                        },
+                        {
+                          "type": "set",
+                          "condition": "$core.basic.advanced_api_selector.more.xEventGroupSetBitFromISR ",
+                          "computed": {
+                            "const": "true"
+                          }
+                        }
+                      ],
+                      "description": "Set to 1 to include software timer functionality in the build, or 0 to omit software timer functionality from the build."
+                    },
+                    "timer_task_priority_level": {
+                      "title": "Timer task priority level",
+                      "description": "Sets the priority of the software timer service task. Note: Available as configUSE_TIMERS is enabled.",
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 128,
+                      "default": 2,
+                      "display_format": [
+                        "dec"
+                      ],
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.kernel.software_timer"
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.kernel.timer_task_priority_level) > ($core.basic.kernel.max_priorities) - 1",
+                          "message": "Maximum task priority must be less than or equal to 'Maximum task priorities' - 1."
+                        }
+                      ]
+                    },
+                    "timer_queue_length": {
+                      "type": "integer",
+                      "title": "Timer queue length",
+                      "description": "Sets the length of the queue used by the timer service task. Note: Available as configUSE_TIMERS is enabled (dynamic allocation used for the timer task).",
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.kernel.software_timer"
+                        }
+                      ],
+                      "minimum": 1,
+                      "maximum": 255,
+                      "default": 10,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "timer_stack_size": {
+                      "title": "Timer stack size",
+                      "description": "Sets the size of the stack (in words, not bytes) allocated to the timer service task. Note: Available as configUSE_TIMERS is enabled (dynamic allocation used for the timer task).",
+                      "type": "integer",
+                      "minimum": 128,
+                      "maximum": 2048,
+                      "default": 128,
+                      "display_format": [
+                        "dec"
+                      ],
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.kernel.software_timer"
+                        }
+                      ]
+                    },
+                    "more": {
+                      "title": "More",
+                      "type": "object",
+                      "properties": {
+                        "idle_task_should_yield": {
+                          "title": "Idle task should yield",
+                          "type": "boolean",
+                          "description": "Set configIDLE_SHOULD_YIELD to 1 to have the idle task yield the CPU to other tasks of equal priority that are ready to run.  Set to 0 to have the idle task not yield the CPU to other tasks of equal priority.",
+                          "default": true
+                        },
+                        "application_task_tag": {
+                          "title": "Application task tag",
+                          "type": "boolean",
+                          "description": "Set configUSE_APPLICATION_TASK_TAG to 1 to include support for an application defined task tag value with each task.  Set to 0 to exclude the task tag functionality from the build.",
+                          "default": false
+                        },
+                        "port_optimized_task_selection": {
+                          "title": "Port optimized task selection",
+                          "type": "boolean",
+                          "description": "Set configUSE_PORT_OPTIMISED_TASK_SELECTION to 1 to use the port optimized task selection code.  Set to 0 to use the generic C code task selection code. The port optimized task selection code is only provided for a subset of FreeRTOS ports, and only supports a maximum of 32 priority levels (configMAX_PRIORITIES must be less than or equal to 32).",
+                          "actions": [
+                            {
+                              "type": "warning",
+                              "condition": "($core.basic.kernel.max_priorities > '32') && ($core.basic.kernel.more.port_optimized_task_selection)",
+                              "message": "#error configUSE_PORT_OPTIMISED_TASK_SELECTION can only be set to 1 when configMAX_PRIORITIES is less than or equal to 32.  It is very rare that a system requires more than 10 to 15 different priorities as tasks that share a priority will time slice. "
+                            }
+                          ],
+                          "default": false
+                        },
+                        "backward_compatibility": {
+                          "title": "Backward compatibility",
+                          "type": "boolean",
+                          "description": "Set configENABLE_BACKWARD_COMPATIBILITY to 1 to enable backward compatibility with FreeRTOS versions prior to V8.0.0.  Set to 0 to disable the backward compatibility code.",
+                          "default": true
+                        },
+                        "task_name_maximum_length": {
+                          "type": "integer",
+                          "title": "Task name maximum length",
+                          "description": "Sets the maximum length for the name assigned to a task. The length is defined in bytes, including the null terminator.",
+                          "default": 16,
+                          "minimum": 12,
+                          "maximum": 255,
+                          "display_format": [
+                            "dec"
+                          ]
+                        },
+                        "record_stack_high_address": {
+                          "type": "boolean",
+                          "title": "Record stack high address",
+                          "description": "Set configRECORD_STACK_HIGH_ADDRESS to 1 to include the stack high address in the Task Status structure.  Set to 0 to exclude the stack high address from the Task Status structure.",
+                          "default": false
+                        },
+                        "number_of_thread_local_storage_pointers": {
+                          "type": "integer",
+                          "title": "Number of thread local storage pointers",
+                          "description": "Sets the number of thread local storage pointers available for each task.  Each task has an array of void pointers that are not used by the kernel itself, but are made available for use by the application writer.",
+                          "minimum": 0,
+                          "maximum": 32,
+                          "default": 5,
+                          "display_format": [
+                            "dec"
+                          ]
+                        },
+                        "provide_static_memory": {
+                          "type": "boolean",
+                          "title": "Provide static memory by kernel",
+                          "description": "Set configSUPPORT_STATIC_ALLOCATION to 1 to include FreeRTOS API functions that create FreeRTOS objects (tasks, queues, etc.) using statically allocated memory in the build.  Set to 0 to exclude those API functions from the build.",
+                          "default": true,
+                          "actions": [
+                            {
+                              "type": "set",
+                              "condition": "$core.basic.memory_management.static_memory_allocation",
+                              "computed": {
+                                "const": "true"
+                              }
+                            }
+                          ]
+                        },
+                        "use_trace_facility": {
+                          "type": "boolean",
+                          "title": "Use trace facility",
+                          "description": "Set configUSE_TRACE_FACILITY to 1 to include additional trace facility functions within the build.  Set to 0 to exclude the trace facility functions from the build.",
+                          "actions": [
+                            {
+                              "type": "set",
+                              "condition": "$core.basic.advanced_configuration_parameters_selector.task_statistics_and_run_time_selector.use_stats_formatting_functions",
+                              "computed": {
+                                "const": "true"
+                              }
+                            }
+                          ],
+                          "default": false
+                        }
+                      }
+                    }
+                  }
+                },
+                "system": {
+                  "type": "object",
+                  "title": "System",
+                  "properties": {
+                    "cpu_frequency": {
+                      "type": "integer",
+                      "title": "CPU frequency",
+                      "description": "CPU frequency in Hz; This must be set to the frequency of the clock that drives the peripheral used to generate the kernels periodic tick interrupt. This is very often, but not always, equal to the main system clock frequency.",
+                      "display_format": [
+                        "dec"
+                      ],
+                      "unit": "Hz",
+                      "default": 4000000,
+                      "actions": [
+                        {
+                          "type": "set",
+                          "condition": "true",
+                          "computed": {
+                            "const": "$get('clock.frequency', 'System_Clock_Frequency') != undefined ? $get('clock.frequency', 'System_Clock_Frequency') : ($core.basic.system.systick_frequency) != undefined ? $core.basic.system.systick_frequency : 4000000"
+                          }
+                        },
+                        {
+                          "type": "disable",
+                          "condition": "true"
+                        }
+                      ]
+                    },
+                    "systick_frequency": {
+                      "type": "integer",
+                      "title": "SysTick frequency",
+                      "description": "Optional parameter for ARM Cortex-M ports only. By default ARM Cortex-M ports generate the RTOS tick interrupt from the Cortex-M SysTick timer. Most Cortex-M MCUs run the SysTick timer at the same frequency as the MCU itself, when that is the case configSYSTICK_CLOCK_HZ  is not needed and should be left undefined. If the SysTick timer is clocked at a different frequency to the MCU core then set configCPU_CLOCK_HZ to the MCU clock frequency, as normal, and configSYSTICK_CLOCK_HZ to the SysTick clock frequency.",
+                      "default": 4000000,
+                      "display_format": [
+                        "dec"
+                      ],
+                      "unit": "Hz",
+                      "actions": [
+                        {
+                          "type": "set",
+                          "condition": "true",
+                          "computed": {
+                            "const": "($get('clock.frequency', 'Cortex_System_Timer') != undefined) ? $get('clock.frequency', 'Cortex_System_Timer') : ($get('clock.frequency', 'SYSTICK_Clock_Source') != undefined) ? $get('clock.frequency', 'SYSTICK_Clock_Source') : ($get('clock.frequency', 'CPU_Sys_Input_Clock') != undefined) ? $get('clock.frequency', 'CPU_Sys_Input_Clock') : ($get('clock.frequency', 'CPU_Input_Clock') != undefined) ? $get('clock.frequency', 'CPU_Input_Clock') : ($core.basic.system.cpu_frequency != undefined) ? $core.basic.system.cpu_frequency : 4000000"
+                          }
+                        },
+                        {
+                          "type": "disable",
+                          "condition": "true"
+                        }
+                      ]
+                    },
+                    "rtos_tick_frequency": {
+                      "type": "integer",
+                      "title": "RTOS tick frequency",
+                      "description": "The frequency of the RTOS tick interrupt. The tick interrupt is used to measure time. Therefore a higher tick frequency means time can be measured to a higher resolution. However, a high tick frequency also means that the RTOS kernel will use more CPU time so be less efficient. The RTOS demo applications all use a tick rate of 1000 Hz. This is used to test the RTOS kernel and is higher than would normally be required.",
+                      "minimum": 1,
+                      "maximum": 1000,
+                      "default": 1000,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "library_lowest_interrupt_priority": {
+                      "type": "integer",
+                      "title": "Library lowest interrupt priority",
+                      "description": "The lowest interrupt priority value that can be assigned to any interrupt in the system. Used to ensure that kernel operations are not interrupted by higher-priority interrupts.",
+                      "minimum": 0,
+                      "maximum": 15,
+                      "default": 15,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "library_max_syscall_interrupt_priority": {
+                      "type": "integer",
+                      "title": "Library maximum syscall interrupt priority",
+                      "description": "The highest interrupt priority value from which FreeRTOS API functions can be safely called. Interrupts with higher priority (lower numeric value) must not call FreeRTOS API functions.",
+                      "minimum": 0,
+                      "maximum": 15,
+                      "default": 5,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "check_handler": {
+                      "type": "boolean",
+                      "title": "Check handler installation",
+                      "description": "Set configCHECK_HANDLER_INSTALLATION to 1 to enable additional asserts to verify that the application has correctly installed FreeRTOS interrupt handlers.",
+                      "default": true
+                    }
+                  }
+                },
+                "memory_management": {
+                  "type": "object",
+                  "title": "Memory management",
+                  "properties": {
+                    "memory_management_schema": {
+                      "type": "string",
+                      "title": "Memory management schema",
+                      "description": "Select a FreeRTOS heap memory allocator (heap_1 to heap_5) for your project. Each provides different features for dynamic memory management; only one should be included at a time.",
+                      "oneOf": [
+                        {
+                          "title": "Heap_1",
+                          "const": "HEAP_1"
+                        },
+                        {
+                          "title": "Heap_2",
+                          "const": "HEAP_2"
+                        },
+                        {
+                          "title": "Heap_3",
+                          "const": "HEAP_3"
+                        },
+                        {
+                          "title": "Heap_4",
+                          "const": "HEAP_4"
+                        },
+                        {
+                          "title": "Heap_5",
+                          "const": "HEAP_5"
+                        },
+                        {
+                          "title": "Not selected",
+                          "const": "NOT_SELECTED"
+                        }
+                      ],
+                      "default": "HEAP_4",
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.memory_management.memory_management_schema != 'NOT_SELECTED') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                          "message": "Enable dynamic memory allocation in the memory management panel when a heap is selected."
+                        }
+                      ]
+                    },
+                    "dynamic_memory_allocation": {
+                      "type": "boolean",
+                      "title": "Dynamic memory allocation",
+                      "description": "Set configSUPPORT_DYNAMIC_ALLOCATION to 1 to include FreeRTOS API functions that create FreeRTOS objects (tasks, queues, etc.) using dynamically allocated memory in the build.",
+                      "default": true,
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "(!$core.basic.memory_management.dynamic_memory_allocation) && (!$core.basic.memory_management.static_memory_allocation)",
+                          "message": "#error configSUPPORT_STATIC_ALLOCATION and configSUPPORT_DYNAMIC_ALLOCATION cannot both be 0, but can both be 1."
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "($core.basic.memory_management.dynamic_memory_allocation) && ($core.basic.memory_management.memory_management_schema == 'NOT_SELECTED')",
+                          "message": "Select a memory management schema when dynamic memory allocation is enabled."
+                        }
+                      ]
+                    },
+                    "static_memory_allocation": {
+                      "type": "boolean",
+                      "title": "Static memory allocation",
+                      "description": "Set configSUPPORT_STATIC_ALLOCATION to 1 to include FreeRTOS API functions that create FreeRTOS objects (tasks, queues, etc.) using statically allocated memory in the build.",
+                      "default": false,
+                      "actions": [
+                        {
+                          "type": "warning",
+                          "condition": "(!$core.basic.memory_management.dynamic_memory_allocation) && (!$core.basic.memory_management.static_memory_allocation)",
+                          "message": "#error configSUPPORT_STATIC_ALLOCATION and configSUPPORT_DYNAMIC_ALLOCATION cannot both be 0, but can both be 1."
+                        }
+                      ]
+                    },
+                    "total_heap_size": {
+                      "type": "integer",
+                      "title": "Total heap size",
+                      "description": "The total amount of RAM available in the FreeRTOS heap. This value will only be used if configSUPPORT_DYNAMIC_ALLOCATION is set to 1 and the application makes use of one of the sample memory allocation schemes provided in the FreeRTOS source code download.",
+                      "default": 8192,
+                      "display_format": [
+                        "dec"
+                      ],
+                      "maximum": 603648,
+                      "minimum": 512,
+                      "unit": "bytes",
+                      "actions": [
+                        {
+                          "type": "disable",
+                          "condition": "($core.basic.memory_management.static_memory_allocation) && (!$core.basic.memory_management.dynamic_memory_allocation)"
+                        },
+                        {
+                          "type": "info",
+                          "message": "The value chosen by the user should take into account the application consumption of RAM otherwise it will lead to link issues."
+                        }
+                      ]
+                    },
+                    "more": {
+                      "title": "More",
+                      "type": "object",
+                      "properties": {
+                        "application_allocated_heap": {
+                          "type": "boolean",
+                          "title": "Application allocated heap",
+                          "description": "Set configAPPLICATION_ALLOCATED_HEAP to 1 to have the application allocate the array used as the FreeRTOS heap.  Set to 0 to have the linker allocate the array used as the FreeRTOS heap. Defaults to 0 if left undefined.",
+                          "default": false
+                        },
+                        "stack_allocation_from_separate_heap": {
+                          "type": "boolean",
+                          "title": "Stack allocation from separate heap",
+                          "description": "Set configSTACK_ALLOCATION_FROM_SEPARATE_HEAP to 1 to have task stacks allocated from somewhere other than the FreeRTOS heap. This is useful if you want to ensure stacks are held in fast memory. Set to 0 to have task stacks come from the standard FreeRTOS heap. The application writer must provide implementations for pvPortMallocStack() and vPortFreeStack() if set to 1. Defaults to 0 if left undefined.",
+                          "default": false
+                        },
+                        "heap_clear_memory_on_free": {
+                          "type": "boolean",
+                          "title": "Clear memory on free",
+                          "description": "Set configHEAP_CLEAR_MEMORY_ON_FREE to 1 to have the memory freed by vPortFree() cleared to zero. This can help catch dangling pointer issues. Set to 0 to leave memory unaltered when it is freed. Defaults to 0 if left undefined.",
+                          "default": false
+                        },
+                        "use_mini_list_item": {
+                          "type": "boolean",
+                          "title": "Use mini list item",
+                          "description": "When configUSE_MINI_LIST_ITEM is set to 0, MiniListItem_t and ListItem_t are both the same. When configUSE_MINI_LIST_ITEM is set to 1, MiniListItem_t contains 3 fewer fields than ListItem_t which saves some RAM at the cost of violating strict aliasing rules which some compilers depend on for optimization. Defaults to 1 if left undefined.",
+                          "default": true
+                        },
+                        "heap_protector": {
+                          "type": "boolean",
+                          "title": "Heap protector",
+                          "description": "Set configENABLE_HEAP_PROTECTOR to 1 to enable bounds checking and obfuscation to internal heap block pointers in heap_4.c and heap_5.c to help catch pointer corruptions. Defaults to 0 if left undefined.",
+                          "default": false
+                        }
+                      }
+                    }
+                  }
+                },
+                "advanced_api_selector": {
+                  "type": "object",
+                  "title": "Advanced API selector",
+                  "properties": {
+                    "vTaskPrioritySet": {
+                      "type": "boolean",
+                      "title": "vTaskPrioritySet",
+                      "default": true,
+                      "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the vTaskPrioritySet() API function, set vTaskPrioritySet to 1 (Enabled) and to exclude it from your build, set vTaskPrioritySet to 0 (Disabled)."
+                    },
+                    "vTaskDelete": {
+                      "type": "boolean",
+                      "title": "vTaskDelete",
+                      "default": true,
+                      "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the vTaskDelete() API function, set vTaskDelete to 1 (Enabled) and to exclude it from your build, set vTaskDelete to 0 (Disabled)."
+                    },
+                    "vTaskDelay": {
+                      "type": "boolean",
+                      "title": "vTaskDelay",
+                      "default": true,
+                      "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the vTaskDelay() API function, set vTaskDelay to 1 (Enabled) and to exclude it from your build, set vTaskDelay to 0 (Disabled)."
+                    },
+                    "vTaskSuspend": {
+                      "type": "boolean",
+                      "title": "vTaskSuspend",
+                      "default": true,
+                      "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the vTaskSuspend() API function, set vTaskSuspend to 1 (Enabled) and to exclude it from your build, set vTaskSuspend to 0 (Disabled)."
+                    },
+                    "more": {
+                      "title": "More",
+                      "type": "object",
+                      "properties": {
+                        "uxTaskPriorityGet": {
+                          "type": "boolean",
+                          "title": "uxTaskPriorityGet",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the uxTaskPriorityGet() API function, set uxTaskPriorityGet to 1 (Enabled) and to exclude it from your build, set uxTaskPriorityGet to 0 (Disabled)."
+                        },
+                        "xTaskDelayUntil": {
+                          "type": "boolean",
+                          "title": "xTaskDelayUntil",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskDelayUntil() API function, set xTaskDelayUntil to 1 (Enabled) and to exclude it from your build, set xTaskDelayUntil to 0 (Disabled)."
+                        },
+                        "xTaskGetSchedulerState": {
+                          "type": "boolean",
+                          "title": "xTaskGetSchedulerState",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskGetSchedulerState() API function, set xTaskGetSchedulerState to 1 (Enabled) and to exclude it from your build, set xTaskGetSchedulerState to 0 (Disabled).",
+                          "actions": [
+                            {
+                              "type": "disable",
+                              "condition": "!$core.basic.kernel.software_timer"
+                            }
+                          ]
+                        },
+                        "xTaskResumeFromISR": {
+                          "type": "boolean",
+                          "title": "xTaskResumeFromISR",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskResumeFromISR() API function, set xTaskResumeFromISR and vTaskSuspend to 1 (Enabled). To exclude it from your build, set xTaskResumeFromISR or vTaskSuspend to 0 (Disabled)."
+                        },
+                        "uxTaskGetStackHighWaterMark": {
+                          "type": "boolean",
+                          "title": "uxTaskGetStackHighWaterMark",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the uxTaskGetStackHighWaterMark() API function, set uxTaskGetStackHighWaterMark to 1 (Enabled) and to exclude it from your build, set uxTaskGetStackHighWaterMark to 0 (Disabled)."
+                        },
+                        "uxTaskGetStackHighWaterMark2": {
+                          "type": "boolean",
+                          "title": "uxTaskGetStackHighWaterMark2",
+                          "default": false,
+                          "description": "To include the uxTaskGetStackHighWaterMark2() API function, set uxTaskGetStackHighWaterMark2 to 1 (Enabled), and to exclude it from your build, set uxTaskGetStackHighWaterMark2 to 0 (Disabled)."
+                        },
+                        "xTaskGetCurrentTaskHandle": {
+                          "type": "boolean",
+                          "title": "xTaskGetCurrentTaskHandle",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskGetCurrentTaskHandle() API function, set xTaskGetCurrentTaskHandle to 1 (Enabled) ,and to exclude it from your build, set xTaskGetCurrentTaskHandle to 0 (Disabled).",
+                          "actions": [
+                            {
+                              "type": "warning",
+                              "condition": "(!$core.basic.advanced_api_selector.more.xTaskGetCurrentTaskHandle ) && ($core.basic.kernel.stream_buffers)",
+                              "message": "Enable xTaskGetCurrentTaskHandle in the Kernel panel when using stream buffers."
+                            }
+                          ]
+                        },
+                        "eTaskGetState": {
+                          "type": "boolean",
+                          "title": "eTaskGetState",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the eTaskGetState() API function, set eTaskGetState to 1 (Enabled) and to exclude it from your build, set eTaskGetState to 0 (Disabled)."
+                        },
+                        "xTaskAbortDelay": {
+                          "type": "boolean",
+                          "title": "xTaskAbortDelay",
+                          "default": false,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskAbortDelay() API function, set xTaskAbortDelay to 1 (Enabled). To exclude it from your build, set xTaskAbortDelay to 0 (Disabled)."
+                        },
+                        "xTaskGetHandle": {
+                          "type": "boolean",
+                          "title": "xTaskGetHandle",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskGetHandle() API function, set xTaskGetHandle to 1 (Enabled). and to exclude it from your build, set xTaskGetHandle to 0 (Disabled)."
+                        },
+                        "xQueueGetMutexHolder": {
+                          "type": "boolean",
+                          "title": "xQueueGetMutexHolder",
+                          "default": true,
+                          "description": "Configuration constant introduced in FreeRTOS v7.2.0 that is used as the default value of xSemaphoreGetMutexHolder (if it is not explicitly set)."
+                        },
+                        "xSemaphoreGetMutexHolder": {
+                          "type": "boolean",
+                          "title": "xSemaphoreGetMutexHolder",
+                          "default": true,
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xSemaphoreGetMutexHolder() API function, set xSemaphoreGetMutexHolder and USE_MUTEXES to 1 (Enabled) and to exclude it from your build, set xSemaphoreGetMutexHolder or USE_MUTEXES to 0 (Disabled)."
+                        },
+                        "xEventGroupSetBitFromISR": {
+                          "type": "boolean",
+                          "title": "xEventGroupSetBitFromISR",
+                          "default": false,
+                          "actions": [
+                            {
+                              "type": "set",
+                              "condition": "!$core.basic.advanced_api_selector.more.xTimerPendFunctionCall ",
+                              "computed": {
+                                "const": "false"
+                              }
+                            }
+                          ],
+                          "description": "Set bits (flags) within an RTOS event group. A version of xEventGroupSetBits() that can be called from an interrupt service routine (ISR). Note: INCLUDE_xTimerPendFunctionCall must be set to 1 to make the xEventGroupSetBitFromISR() function available. Dependency: Must be set to 0 (Disabled) when xTimerPendFunctionCall = 0 (Disabled)."
+                        },
+                        "xTimerPendFunctionCall": {
+                          "type": "boolean",
+                          "title": "xTimerPendFunctionCall",
+                          "default": true,
+                          "actions": [
+                            {
+                              "type": "set",
+                              "condition": "$core.basic.advanced_api_selector.more.xEventGroupSetBitFromISR ",
+                              "computed": {
+                                "const": "true"
+                              }
+                            },
+                            {
+                              "type": "set",
+                              "condition": "!$core.basic.kernel.software_timer",
+                              "computed": {
+                                "const": "false"
+                              }
+                            },
+                            {
+                              "type": "warning",
+                              "condition": "(!$core.basic.kernel.software_timer) && ($core.basic.advanced_api_selector.more.xTimerPendFunctionCall)",
+                              "message": "Enable software timer in the kernel panel to use xTimerPendFunctionCall()."
+                            }
+                          ],
+                          "description": "Used to pend the execution of a function to the RTOS daemon task (the timer service task, hence this function is pre-fixed with 'Timer'). Note: configUSE_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available."
+                        }
+                      }
+                    }
+                  }
+                },
+                "advanced_configuration_parameters_selector": {
+                  "type": "object",
+                  "title": "Advanced parameters selector",
+                  "properties": {
+                    "hook_selector": {
+                      "type": "object",
+                      "title": "Hook functions",
+                      "properties": {
+                        "use_idle_hook": {
+                          "type": "boolean",
+                          "title": "Use idle hook",
+                          "default": false,
+                          "description": "The idle task hook function is a hook (or callback) function that, if defined and configured, will be called by the idle task on each iteration of its implementation. if USE_IDLE_HOOK is set to 1 (Enabled) then the application must define an idle task hook function: void vApplicationIdleHook(void). if USE_IDLE_HOOK is set to 0 (Disabled) then the idle task hook function will not be called, even if one is defined. Note: When set to 1, an empty function is generated in the mx_freertos_app.c file (to be completed by the user)."
+                        },
+                        "use_tick_hook": {
+                          "type": "boolean",
+                          "title": "Use tick hook",
+                          "default": false,
+                          "description": "The tick hook function is a hook (or callback) function that, if defined and configured, will be called during each tick interrupt. If USE_TICK_HOOK is set to 1 (Enabled) then the application must define a tick hook function; void vApplicationTickHook(void)0. If USE_TICK_HOOK is set to 0 (Disabled) then the tick hook function will not be called, even if one is defined. Note: When set to 1, an empty function is generated in the mx_freertos_app.c file (to be completed by the user)."
+                        },
+                        "check_for_stack_overflow": {
+                          "title": "Check for stack overflow",
+                          "description": "FreeRTOS provides two optional mechanisms that can be used to assist in stack overflow detection and debugging. When CHECK_FOR_STACK_OVERFLOW is set to 1 (option1), one mechanism is used. when CHECK_FOR_STACK_OVERFLOW is set to 2 (option2), both mechanisms are used. If CHECK_FOR_STACK_OVERFLOW is not set to 0 (Disabled), the application must provide a stack overflow hook (or callback) function: void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName ). The kernel will call that stack overflow hook whenever a stack overflow is detected. Note: When set to 1 or 2, a function with an empty body is generated in the mx_freertos_app.c file (to be completed by the user).",
+                          "type": "string",
+                          "default": "0",
+                          "oneOf": [
+                            {
+                              "title": "0",
+                              "const": "0"
+                            },
+                            {
+                              "title": "1",
+                              "const": "1"
+                            },
+                            {
+                              "title": "2",
+                              "const": "2"
+                            }
+                          ]
+                        },
+                        "use_malloc_failed_hook": {
+                          "type": "boolean",
+                          "title": "Use malloc failed hook",
+                          "default": false,
+                          "description": "The malloc() failed hook function is a hook (or callback) function that, if defined and configured, will be called if pvPortMalloc() ever returns NULL. NULL will be returned only if there is insufficient FreeRTOS heap memory remaining for the requested allocation to succeed. If USE_MALLOC_FAILED_HOOK is set to 1 (Enabled) then the application must define a malloc() failed hook function: void vApplicationMallocFailedHook(void). If USE_MALLOC_FAILED_HOOK is set to 0 (Disabled) then the malloc() failed hook function will not be called, even if one is defined. Note: when set to 1, an empty function is generated in the mx_freertos_app.c file (to be completed by the user)."
+                        },
+                        "use_daemon_task_startup_hook": {
+                          "type": "boolean",
+                          "title": "Use daemon task startup hook",
+                          "default": false,
+                          "description": "If USE_TIMERS and USE_DAEMON_TASK_STARTUP_HOOK are both set to 1 (Enabled) then the application must define an hook function: void vApplicationDaemonTaskStartupHook(void).Note: When set to 1, an empty function is generated in the mx_freertos_app.c file (to be completed by the user). Added since support of FreeRTOS v9.",
+                          "actions": [
+                            {
+                              "type": "warning",
+                              "condition": "(!$core.basic.kernel.software_timer) && ($core.basic.advanced_configuration_parameters_selector.hook_selector.use_daemon_task_startup_hook)",
+                              "message": "Enable software timer in the kernel panel to use daemon task startup hook."
+                            }
+                          ]
+                        },
+                        "use_sb_completed_callback": {
+                          "type": "boolean",
+                          "title": "Use SB completed callback",
+                          "default": false,
+                          "description": "Set configUSE_SB_COMPLETED_CALLBACK to 1 to have send and receive completed callbacks for each instance of a stream buffer or message buffer. When the option is set to 1, APIs xStreamBufferCreateWithCallback() and xStreamBufferCreateStaticWithCallback() (and likewise APIs for message buffer) can be used to create a stream buffer or message buffer instance with application provided callbacks. Defaults to 0 if left undefined."
+                        }
+                      }
+                    },
+                    "task_statistics_and_run_time_selector": {
+                      "type": "object",
+                      "title": "Task statistics and run-time",
+                      "properties": {
+                        "generate_run_time_stats": {
+                          "type": "boolean",
+                          "title": "Generate run time stats",
+                          "default": false,
+                          "description": "FreeRTOS can be configured to collect task run time statistics. The vTaskGetRunTimeStats() API function formats the collected run time statistics into a human readable table. GENERATE_RUN_TIME_STATS must be set to 1 (Enabled) for vTaskGetRunTimeStats() to be available. Note: when set to 1, two empty functions are generated in the mx_freertos_app.c file (to be completed by the user)."
+                        },
+                        "use_stats_formatting_functions": {
+                          "type": "boolean",
+                          "title": "Use stats formatting functions",
+                          "description": "Set USE_TRACE_FACILITY and USE_STATS_FORMATTING_FUNCTIONS to 1 (Enabled) to include the vTaskList() and vTaskGetRunTimeStats() functions in the build. Setting either to 0 (Disabled) will omit vTaskList() and vTaskGetRunTimeStates() from the build.",
+                          "default": false,
+                          "actions": [
+                            {
+                              "type": "warning",
+                              "condition": "(!$core.basic.memory_management.dynamic_memory_allocation) && ($core.basic.advanced_configuration_parameters_selector.task_statistics_and_run_time_selector.use_stats_formatting_functions)",
+                              "message": "Use dynamic memory allocation in the memory management panel."
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "security": {
+              "type": "object",
+              "title": "Security features",
+              "actions": [
+                {
+                  "type": "exclude",
+                  "condition": "(!$get('hwPlatform.device').cores[0].trustZone) && (!$get('hwPlatform.device').cores[0].pacbti) && ($get('hwPlatform.device').cores[0].mve == 'NO_MVE')"
+                }
+              ],
+              "properties": {
+                "trustzone": {
+                  "type": "boolean",
+                  "title": "TrustZone",
+                  "description": "Set configENABLE_TRUSTZONE to 1 when running FreeRTOS on the non-secure side to enable the TrustZone support in FreeRTOS ARMv8-M ports which allows the non-secure FreeRTOS tasks to call the (non-secure callable) functions exported from secure side.",
+                  "default": false,
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "$get('hwPlatform.device').cores[0].trustZone"
+                    },
+                    {
+                      "type": "disable",
+                      "condition": "$core.security.run_freertos_secure_only"
+                    },
+                    {
+                      "type": "disable",
+                      "condition": "true"
+                    }
+                  ]
+                },
+                "run_freertos_secure_only": {
+                  "type": "boolean",
+                  "title": "Run FreeRTOS secure only",
+                  "description": "If the application writer does not want to use TrustZone, but the hardware does not support disabling TrustZone then the entire application (including the FreeRTOS scheduler) can run on the secure side without ever branching to the non-secure side. To do that, in addition to setting configENABLE_TRUSTZONE to 0, also set configRUN_FREERTOS_SECURE_ONLY to 1.",
+                  "default": false,
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "($get('hwPlatform.device').cores[0].coreType == 'Cortex-M85') || ($get('hwPlatform.device').cores[0].coreType == 'Cortex-M55')"
+                    },
+                    {
+                      "type": "disable",
+                      "condition": "$core.security.trustzone"
+                    }
+                  ]
+                },
+                "pac": {
+                  "type": "boolean",
+                  "title": "PAC",
+                  "description": "Set configENABLE_PAC to 1 to enable Pointer Authentication Security Feature PAC and 0 to disable it. It is used only in ARMv8.1-M ports.",
+                  "default": false,
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "($get('hwPlatform.device').cores[0].coreType == 'Cortex-M85') || ($get('hwPlatform.device').cores[0].pacbti)"
+                    }
+                  ]
+                },
+                "bti": {
+                  "type": "boolean",
+                  "title": "BTI",
+                  "description": "Set configENABLE_BTI to 1 to enable Branch Target Identification Security Feature BTI and 0 to disable it. It is used only in ARMv8.1-M ports.",
+                  "default": false,
+                  "actions": [
+                    {
+                      "type": "include",
+                      "condition": "($get('hwPlatform.device').cores[0].coreType == 'Cortex-M85') || ($get('hwPlatform.device').cores[0].pacbti)"
+                    }
+                  ]
+                },
+                "mve": {
+                  "type": "boolean",
+                  "title": "MVE",
+                  "description": "Set configENABLE_MVE to 1 to enable the M-Profile Vector Extension (MVE) support, or 0 to leave the MVE support disabled. This option is only applicable to Cortex-M55 and Cortex-M85 ports as M-Profile Vector Extension (MVE) is available only on these architectures. configENABLE_MVE must be left undefined, or defined to 0 for the Cortex-M23,Cortex-M33 and Cortex-M35P ports.",
+                  "default": false,
+                  "actions": [
+                    {
+                      "type": "exclude",
+                      "condition": "$get('hwPlatform.device').cores[0].mve == 'NO_MVE'"
+                    }
+                  ]
+                }
+              }
+            },
+            "applicative": {
+              "type": "object",
+              "title": "Applicative",
+              "properties": {
+                "tasks": {
+                  "type": "array",
+                  "title": "Tasks",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "task_name": {
+                        "type": "string",
+                        "title": "Task name",
+                        "description": "Name of the task.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Task', $item, $core.applicative.tasks)"
+                            }
+                          }
+                        ]
+                      },
+                      "stack_size": {
+                        "type": "integer",
+                        "title": "Task stack size",
+                        "description": "Set the size of the task stack specified as the number of bytes. The stack size is defined as the number of variables the stack can hold, not the number of bytes. For example, if the stack is 16 bits wide and configMINIMAL_STACK_SIZE is defined as 128, then the stack will be 256 bytes (128 x 2) wide.",
+                        "default": 128,
+                        "unit": "bytes",
+                        "display_format": [
+                          "dec"
+                        ]
+                      },
+                      "task_priority": {
+                        "type": "integer",
+                        "title": "Task priority",
+                        "description": "Set the priority at which the task should run. Priorities are specified as numbers between 0 (the lowest priority) and (configMAX_PRIORITIES - 1) (the highest priority).",
+                        "default": 0,
+                        "display_format": [
+                          "dec"
+                        ],
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.task_priority) > ($core.basic.kernel.max_priorities) - 1",
+                            "message": "The maximum of task priority must be less than or equal to 'Maximum task priorities' - 1."
+                          }
+                        ]
+                      },
+                      "entry_function": {
+                        "type": "string",
+                        "title": "Entry function",
+                        "description": "Function that implements the task being created. The function must conform to the prototype required by the RTOS. For example, on FreeRTOS the function must be defined to take a single void pointer parameter and return void.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('function', $item, $core.applicative.tasks)"
+                            }
+                          }
+                        ]
+                      },
+                      "parameter": {
+                        "type": "integer",
+                        "title": "Parameter",
+                        "description": "A value that will be passed into the task as the task's parameter. The meaning of the parameter is defined by the application writer.",
+                        "default": 0,
+                        "display_format": [
+                          "dec"
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the task.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Buffer that the task being created will use as its stack. Note: this is an array of StackType_t variables. The size of StackType_t is dependent on the RTOS port.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferTask', $item, $core.applicative.tasks)"
+                            }
+                          }
+                        ]
+                      },
+                      "control_block_name": {
+                        "type": "string",
+                        "title": "Control block name",
+                        "description": "Structure that will hold the TCB of the task being created.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyControlBlockTask', $item, $core.applicative.tasks)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "mutexes": {
+                  "type": "array",
+                  "title": "Mutexes",
+                  "maxItems": 10,
+                  "actions": [
+                    {
+                      "type": "warning",
+                      "condition": "($core.applicative.mutexes.length > 0) && (!$core.basic.kernel.mutexes)",
+                      "message": "Enable mutexes in the kernel panel."
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mutex_name": {
+                        "type": "string",
+                        "title": "Mutex name",
+                        "description": "Name of the mutex.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Mutex', $item, $core.applicative.mutexes)"
+                            }
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the mutex.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the mutex type semaphore's state.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferMutex', $item, $core.applicative.mutexes)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "binary_semaphores": {
+                  "type": "array",
+                  "title": "Binary semaphores",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "semaphore_name": {
+                        "type": "string",
+                        "title": "Binary semaphore name",
+                        "description": "Name of the binary semaphore.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('BinarySemaphore', $item, $core.applicative.binary_semaphores)"
+                            }
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the binary semaphore.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the semaphore's state.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferBinarySem', $item, $core.applicative.binary_semaphores)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "counting_semaphores": {
+                  "type": "array",
+                  "title": "Counting semaphores",
+                  "maxItems": 10,
+                  "actions": [
+                    {
+                      "type": "warning",
+                      "condition": "($core.applicative.counting_semaphores.length > 0) && (!$core.basic.kernel.counting_semaphores)",
+                      "message": "Enable counting semaphores in the kernel panel."
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "semaphore_name": {
+                        "type": "string",
+                        "title": "Counting semaphore name",
+                        "description": "Name of the counting semaphore.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('CountingSemaphore', $item, $core.applicative.counting_semaphores)"
+                            }
+                          }
+                        ]
+                      },
+                      "max_count": {
+                        "type": "integer",
+                        "title": "Maximum counter",
+                        "description": "The maximum count value that can be reached by the semaphore. This value must be greater than zero.",
+                        "default": 1,
+                        "minimum": 1,
+                        "display_format": [
+                          "dec"
+                        ]
+                      },
+                      "initial_count": {
+                        "type": "integer",
+                        "title": "Initial counter",
+                        "description": "The initial count value of the semaphore when it is created. This value must be between 0 and the maximum counter value.",
+                        "default": 0,
+                        "minimum": 0,
+                        "display_format": [
+                          "dec"
+                        ],
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.initial_count) > ($item.max_count)",
+                            "message": "Initial counter value must be between 0 and maximum counter."
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the counting semaphore.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the semaphore's state.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferCountingSem', $item, $core.applicative.counting_semaphores)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "queues": {
+                  "type": "array",
+                  "title": "Queues",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "queue_name": {
+                        "type": "string",
+                        "title": "Queue name",
+                        "description": "Name of the queue.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Queue', $item, $core.applicative.queues)"
+                            }
+                          }
+                        ]
+                      },
+                      "buffer_size": {
+                        "type": "integer",
+                        "title": "Buffer size",
+                        "description": "The maximum number of items the queue can hold at any one time.",
+                        "default": 16
+                      },
+                      "queue_item_size": {
+                        "type": "string",
+                        "title": "Queue item size",
+                        "description": "The size, in bytes, required to hold each item in the queue. Items are queued by copy, not by reference, so this is the number of bytes that will be copied for each queued  Each item in the queue must be the same size.",
+                        "default": "UINT16_T",
+                        "oneOf": [
+                          {
+                            "title": "uint8_t",
+                            "const": "UINT8_T"
+                          },
+                          {
+                            "title": "uint16_t",
+                            "const": "UINT16_T"
+                          },
+                          {
+                            "title": "uint32_t",
+                            "const": "UINT32_T"
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the queue.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "If buffer size is not zero then buffer name must point to a uint8_t array that is at least large enough to hold the maximum number of items that can be in the queue at any one time.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyQueueBuffer', $item, $core.applicative.queues)"
+                            }
+                          }
+                        ]
+                      },
+                      "control_block_name": {
+                        "type": "string",
+                        "title": "Control block name",
+                        "description": "Must point to a variable of type StaticQueue_t, which will be used to hold the queue's data structure.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyControlBlockQueue', $item, $core.applicative.queues)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "recursive_mutexes": {
+                  "type": "array",
+                  "title": "Recursive mutexes",
+                  "maxItems": 10,
+                  "actions": [
+                    {
+                      "type": "warning",
+                      "condition": "($core.applicative.recursive_mutexes.length > 0) && (!$core.basic.kernel.recursive_mutexes)",
+                      "message": "Enable recursive mutexes in the kernel panel."
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "recursive_mutex_name": {
+                        "type": "string",
+                        "title": "Recursive mutex name",
+                        "description": "Name of the recursive mutex.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('RecursiveMutex', $item, $core.applicative.recursive_mutexes)"
+                            }
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the recursive mutex.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the mutex type semaphore's state.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferRecursiveMutex', $item, $core.applicative.recursive_mutexes)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "timers": {
+                  "type": "array",
+                  "title": "Software timers",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "timer_name": {
+                        "type": "string",
+                        "title": "Timer name",
+                        "description": "Name of the software timer.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Timer', $item, $core.applicative.timers)"
+                            }
+                          }
+                        ]
+                      },
+                      "period": {
+                        "type": "integer",
+                        "title": "Timer period",
+                        "unit": "ms",
+                        "description": "The period of the timer. The period is specified in ticks, and the macro pdMS_TO_TICKS() can be used to convert a time specified in milliseconds to a time specified in ticks.",
+                        "default": 0,
+                        "minimum": 0,
+                        "display_format": [
+                          "dec"
+                        ]
+                      },
+                      "reload_mode": {
+                        "type": "string",
+                        "title": "Reload mode",
+                        "description": "If it is set to pdTRUE, then the timer will expire repeatedly with a frequency set by the xTimerPeriod parameter. If it is set to pdFALSE, then the timer will be a one-shot and enter the dormant state after it expires.",
+                        "oneOf": [
+                          {
+                            "title": "One-shot",
+                            "const": "ONE-SHOT"
+                          },
+                          {
+                            "title": "Periodic",
+                            "const": "PERIODIC"
+                          }
+                        ],
+                        "default": "PERIODIC"
+                      },
+                      "timer_id": {
+                        "type": "integer",
+                        "title": "Timer ID",
+                        "description": "An identifier that can be used by the application writer to identify the timer to which a timer callback function refers.",
+                        "default": 0,
+                        "minimum": 0,
+                        "display_format": [
+                          "dec"
+                        ]
+                      },
+                      "callback_function": {
+                        "type": "string",
+                        "title": "Callback function",
+                        "description": "Function that will be called when the timer expires. The function must conform to the prototype required by the RTOS. For example, on FreeRTOS the function must be defined to take a single TimerHandle_t parameter and return void.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Callback', $item, $core.applicative.timers)"
+                            }
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the timer.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticTimer_t, which is then used to hold the timer's state.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferTimer', $item, $core.applicative.timers)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "title": "Events",
+                  "maxItems": 10,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "event_name": {
+                        "type": "string",
+                        "title": "Event name",
+                        "description": "Name of the event.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('Event', $item, $core.applicative.events)"
+                            }
+                          }
+                        ]
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the event.",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_name": {
+                        "type": "string",
+                        "title": "Buffer name",
+                        "description": "Must point to a variable of type StaticEventGroup_t, in which the event group data structure will be stored.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyBufferEvent', $item, $core.applicative.events)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "queue_sets": {
+                  "type": "array",
+                  "title": "Queue sets",
+                  "maxItems": 10,
+                  "actions": [
+                    {
+                      "type": "warning",
+                      "condition": "($core.applicative.queue_sets.length > 0) && (!$core.basic.kernel.queue_sets)",
+                      "message": "Enable queue sets in the kernel panel."
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "queue_set_name": {
+                        "type": "string",
+                        "title": "Queue set name",
+                        "description": "Name of the queue set.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('QueueSet', $item, $core.applicative.queue_sets)"
+                            }
+                          }
+                        ]
+                      },
+                      "total_set_length": {
+                        "type": "integer",
+                        "title": "Total set length",
+                        "description": "The maximum number of items the queue can hold at any one time.",
+                        "default": 16
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "description": "Select the type of memory allocation for the queue set.",
+                        "oneOf": [
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ],
+                        "default": "DYNAMIC"
+                      }
+                    }
+                  }
+                },
+                "stream_buffers": {
+                  "type": "array",
+                  "title": "Stream buffers",
+                  "maxItems": 10,
+                  "actions": [
+                    {
+                      "type": "warning",
+                      "condition": "($core.applicative.stream_buffers.length > 0) && (!$core.basic.kernel.stream_buffers)",
+                      "message": "Enable stream buffers in the kernel panel."
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "stream_buffer_name": {
+                        "type": "string",
+                        "title": "Stream buffer name",
+                        "description": "Name of the stream buffer.",
+                        "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "actions": [
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('StreamBuffer', $item, $core.applicative.stream_buffers)"
+                            }
+                          }
+                        ]
+                      },
+                      "buffer_size": {
+                        "type": "integer",
+                        "title": "Buffer size",
+                        "description": "The total size, in bytes, of the stream buffer.",
+                        "default": 256,
+                        "unit": "bytes"
+                      },
+                      "trigger_level": {
+                        "type": "integer",
+                        "title": "Trigger level",
+                        "description": "The number of bytes that must be in the stream buffer before the trigger event occurs.",
+                        "default": 64,
+                        "unit": "bytes"
+                      },
+                      "memory_allocation": {
+                        "type": "string",
+                        "title": "Memory allocation type",
+                        "oneOf": [
+                          {
+                            "title": "Static",
+                            "const": "STATIC"
+                          },
+                          {
+                            "title": "Dynamic",
+                            "const": "DYNAMIC"
+                          }
+                        ],
+                        "default": "DYNAMIC",
+                        "description": "Select the type of memory allocation for the stream buffer.",
+                        "actions": [
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'STATIC') && (!$core.basic.memory_management.static_memory_allocation)",
+                            "message": "Enable static memory allocation in the memory management panel."
+                          },
+                          {
+                            "type": "warning",
+                            "condition": "($item.memory_allocation == 'DYNAMIC') && (!$core.basic.memory_management.dynamic_memory_allocation)",
+                            "message": "Enable dynamic memory allocation in the memory management panel."
+                          }
+                        ]
+                      },
+                      "buffer_storage": {
+                        "type": "string",
+                        "title": "Buffer storage area",
+                        "description": "Name of the array used to hold the data being sent to and received from the stream buffer.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('BufferStorage', $item, $core.applicative.stream_buffers)"
+                            }
+                          }
+                        ]
+                      },
+                      "stream_buffer_control": {
+                        "type": "string",
+                        "title": "Control block name",
+                        "description": "Name of the control block used for the stream buffer.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.memory_allocation == 'STATIC'"
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "default": "$common.get_default_name('MyControlStreamBuffer', $item, $core.applicative.stream_buffers)"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "interfaces": {
+          "type": "object",
+          "title": "Interfaces",
+          "properties": {
+            "portable": {
+              "title": "Portable",
+              "type": "object",
+              "properties": {
+                "core": {
+                  "title": "Core",
+                  "type": "string",
+                  "actions": [
+                    {
+                      "type": "set",
+                      "computed": {
+                        "default": "$common.get_freertos_port_no_tz($get('hwPlatform.device').cores[0].coreType)"
+                      }
+                    },
+                    {
+                      "type": "set",
+                      "condition": "$core.security.trustzone",
+                      "computed": {
+                        "const": "$common.get_freertos_port_tz($get('hwPlatform.device').cores[0].coreType)"
+                      }
+                    },
+                    {
+                      "type": "set",
+                      "condition": "(!$core.security.trustzone) || (!$get('hwPlatform.device').cores[0].trustZone)",
+                      "computed": {
+                        "const": "$common.get_freertos_port_no_tz($get('hwPlatform.device').cores[0].coreType)"
+                      }
+                    },
+                    {
+                      "type": "disable",
+                      "condition": "true"
+                    }
+                  ],
+                  "description": "Specifies the processor core used for the interface. This is typically auto-detected based on the hardware platform."
+                }
+              }
+            },
+            "low_power": {
+              "title": "Low power",
+              "type": "object",
+              "actions": [
+                {
+                  "type": "enable",
+                  "condition": "$core.basic.kernel.tickless_mode"
+                }
+              ],
+              "properties": {
+                "interface": {
+                  "title": "Interface",
+                  "type": "string",
+                  "description": "Select the low-power interface to use: either a custom implementation, where you implement your own behavior by completing the weak functions generated in \"mx_freertos_app.c\", or the default interface provided by the HAL PWR driver, configured in the PWR panel.",
+                  "oneOf": [
+                    {
+                      "title": "Custom",
+                      "const": "CUSTOM"
+                    },
+                    {
+                      "title": "Default",
+                      "const": "DEFAULT"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "error",
+                      "condition": "(!$get('peripheral.isBound', 'PWR')) && ($interfaces.low_power.interface == 'DEFAULT')",
+                      "message": "PWR component must be activated to access and configure low-power settings."
+                    },
+                    {
+                      "type": "warning",
+                      "message": "Please enable the settings \"Allow to generate runtime functions\", \"Low power entry\", and \"Low power exit\" in the \"Applicative Services\" panel of the PWR GUI to allow generation of runtime functions.",
+                      "condition": "((!$get('sw-config.peripheral-parameter-value', 'PWR', 'runtime/enable')) || (!$get('sw-config.peripheral-parameter-value', 'PWR', 'runtime/lp_entry')) || (!$get('sw-config.peripheral-parameter-value', 'PWR', 'runtime/lp_exit'))) && ($interfaces.low_power.interface == 'DEFAULT')"
+                    }
+                  ],
+                  "default": "CUSTOM"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

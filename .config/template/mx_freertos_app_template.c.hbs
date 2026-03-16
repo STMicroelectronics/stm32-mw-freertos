@@ -1,0 +1,652 @@
+{{!--
+  ******************************************************************************
+  * @file           : mx_freertos_app_template.c.hbs
+  * @brief          : FreeRTOS initialization
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  ~--}}
+{{assign 'rtosFilter' (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "FreeRTOS"}')~}}
+{{assign 'rtos_context' (@root.SWConfigurationAPI.getInstancesConfiguration @root.rtosFilter)~}}
+{{assign 'rtos_cxt' @root.rtos_context.[0].settings.parameters~}}
+{{assign 'dynamic_memory_allocation' false~}}
+{{log "RTOS Config template rtos_cxt:" (toJSON @root.rtos_cxt)~}}
+/**
+  ******************************************************************************
+  * @file           : mx_freertos_app.c
+  * @brief          : FreeRTOS initialization
+{{> LICENSE}}
+
+/* Includes ------------------------------------------------------------------*/
+#include "mx_freertos_app.h"
+
+/* Private define ------------------------------------------------------------*/
+{{#with @root.rtos_cxt~}}
+{{~#with core}}
+{{~#with applicative~}}
+{{~#each tasks~}}
+#define {{task_name}}_stack_size  {{stack_size}}U
+{{/each}}
+
+{{~#each queues~}}
+#define {{queue_name}}_buffer_size  {{buffer_size}}U
+{{/each}}
+
+{{~#each timers~}}
+#define {{timer_name}}_period  ( pdMS_TO_TICKS( {{period}}UL ) )
+{{/each}}
+
+{{~#each queue_sets~}}
+#define {{queue_set_name}}_length  {{total_set_length}}U
+{{/each}}
+
+{{~#each stream_buffers~}}
+#define {{stream_buffer_name}}_size  {{buffer_size}}U
+{{/each}}
+
+{{~#each stream_buffers~}}
+#define {{stream_buffer_name}}_trigger_level  {{trigger_level}}U
+{{/each}}
+/* Private typedef -----------------------------------------------------------*/
+{{#each tasks~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticTask_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each mutexes~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticSemaphore_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each recursive_mutexes~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticSemaphore_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each events~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticEventGroup_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each binary_semaphores~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticSemaphore_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each counting_semaphores~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticSemaphore_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each queues~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticQueue_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each timers~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticTimer_t {{buffer_name}};
+{{/if~}}
+{{/each~}}
+
+{{~#each stream_buffers~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StaticStreamBuffer_t {{stream_buffer_control}};
+{{/if~}}
+{{/each~}}
+
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+{{#each tasks~}}
+{{#if (eq memory_allocation 'STATIC')}}
+static StackType_t {{control_block_name}}[{{task_name}}_stack_size];
+{{/if}}
+{{/each}}
+
+{{~#each queues}}
+{{#if (eq memory_allocation 'STATIC')}}
+static uint8_t {{control_block_name}}[{{queue_name}}_buffer_size * sizeof({{lowercase queue_item_size}})];
+{{/if}}
+{{/each}}
+
+{{~#each stream_buffers}}
+{{#if (eq memory_allocation 'STATIC')}}
+static uint8_t {{buffer_storage}}[{{stream_buffer_name}}_size + 1];
+{{/if}}
+{{/each}}
+{{~/with~}}
+{{#with basic~}}
+{{#with memory_management~}}
+{{#with more~}}
+{{#if application_allocated_heap}}
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+
+{{/if~}}
+{{~/with~}}
+{{~/with~}}
+{{~/with~}}
+{{~#with applicative~}}
+{{#if (or tasks.length queues.length counting_semaphores.length binary_semaphores.length timers.length events.length mutexes.length recursive_mutexes.length queue_sets.length stream_buffers.length)}}
+{{#if tasks.length}}
+/*-------------------- Tasks definition --------------------------------------*/
+{{#each tasks~}}
+/* Definitions for {{task_name}} */
+static TaskHandle_t {{task_name}}_Handle;
+{{/each}}
+{{/if}}
+
+{{#if queues.length}}
+/*-------------------- Queues definition ------------------------------------*/
+{{#each queues~}}
+/* Definitions for {{queue_name}} */
+static QueueHandle_t {{queue_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if counting_semaphores.length}}
+/*-------------------- Counting Semaphores definition -----------------------*/
+{{#each counting_semaphores~}}
+/* Definitions for {{semaphore_name}} */
+static SemaphoreHandle_t {{semaphore_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if binary_semaphores.length}}
+/*-------------------- Binary Semaphores definition -------------------------*/
+{{#each binary_semaphores~}}
+/* Definitions for {{semaphore_name}} */
+static SemaphoreHandle_t {{semaphore_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if timers.length}}
+/*-------------------- Software Timers definition ---------------------------*/
+{{#each timers~}}
+/* Definitions for {{timer_name}} */
+static TimerHandle_t {{timer_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if events.length}}
+/*-------------------- Events definition ------------------------------------*/
+{{#each events}}
+/* Definitions for {{event_name}} */
+static EventGroupHandle_t {{event_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if mutexes.length}}
+/*-------------------- Mutexes definition -----------------------------------*/
+{{#each mutexes}}
+/* Definitions for {{mutex_name}} */
+static SemaphoreHandle_t {{mutex_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if recursive_mutexes.length}}
+/*-------------------- Recursive Mutexes definition -------------------------*/
+{{#each recursive_mutexes}}
+/* Definitions for {{recursive_mutex_name}} */
+static SemaphoreHandle_t {{recursive_mutex_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if queue_sets.length}}
+/*-------------------- Queue Sets definition -------------------------------*/
+{{#each queue_sets}}
+/* Definitions for {{queue_set_name}} */
+static QueueSetHandle_t {{queue_set_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{#if stream_buffers.length}}
+/*-------------------- Stream Buffers definition ---------------------------*/
+{{#each stream_buffers}}
+/* Definitions for {{stream_buffer_name}} */
+static StreamBufferHandle_t {{stream_buffer_name}}_Handle;
+{{/each}}
+
+{{/if}}
+{{/if}}
+/* Private functions prototype -----------------------------------------------*/
+{{#if tasks.length}}
+/* Tasks entry function ------------------------------------------------------*/
+{{#each tasks~}}
+static void {{entry_function}}(void *pvParameters);
+{{/each}}
+
+{{/if}}
+{{#if timers.length}}
+/* Software Timers Callbacks function ----------------------------------------*/
+{{#each timers~}}
+void {{callback_function}}(TimerHandle_t xTimer);
+{{/each}}
+
+{{/if}}
+/**
+  * @brief Initializes FreeRTOS kernel objects.
+  * @param None
+  * @retval int32_t Returns 0 on success, -1 on failure.
+  */
+int32_t app_synctasks_init (void)
+{
+{{#each tasks}}
+{{~#if (eq memory_allocation 'DYNAMIC')}}
+{{~#if (not @root.dynamic_memory_allocation)}}
+  BaseType_t ret;
+{{assign 'dynamic_memory_allocation' true}}
+{{/if}}
+{{/if}}
+{{/each}}
+{{#each tasks}}
+  /* {{task_name}} creation-------------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  ret = xTaskCreate({{entry_function}}, "{{task_name}}", {{task_name}}_stack_size,
+                    (void*) {{#if (eq parameter 0)}}NULL{{else}}{{parameter}}{{/if}}, {{task_priority}}, &{{task_name}}_Handle);
+
+  if (ret != pdPASS)
+  {
+      return -1;
+  }
+{{else}}
+  {{task_name}}_Handle = xTaskCreateStatic({{entry_function}}, "{{task_name}}", {{task_name}}_stack_size,
+                                          (void*) {{#if (eq parameter 0)}}NULL{{else}}{{parameter}}{{/if}}, {{task_priority}}, {{control_block_name}}, &{{buffer_name}});
+
+  if ({{task_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+{{/if}}
+
+{{/each}}
+{{#each queues}}
+  /* {{queue_name}} creation-------------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{queue_name}}_Handle = xQueueCreate({{queue_name}}_buffer_size, sizeof({{lowercase queue_item_size}}));
+{{else}}
+  {{queue_name}}_Handle = xQueueCreateStatic({{queue_name}}_buffer_size, sizeof({{lowercase queue_item_size}}), {{control_block_name}}, &{{buffer_name}});
+{{/if}}
+
+  if ({{queue_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each counting_semaphores}}
+  /* {{semaphore_name}} creation---------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{semaphore_name}}_Handle = xSemaphoreCreateCounting({{max_count}}, {{initial_count}});
+{{else}}
+  {{semaphore_name}}_Handle = xSemaphoreCreateCountingStatic({{max_count}}, {{initial_count}}, &{{buffer_name}});
+{{/if}}
+
+  if ({{semaphore_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each binary_semaphores}}
+  /* {{semaphore_name}} creation--------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{semaphore_name}}_Handle = xSemaphoreCreateBinary();
+{{else}}
+  {{semaphore_name}}_Handle = xSemaphoreCreateBinaryStatic(&{{buffer_name}});
+{{/if}}
+
+  if ({{semaphore_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each timers}}
+  /* {{timer_name}} creation------------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{timer_name}}_Handle = xTimerCreate("{{timer_name}}", {{timer_name}}_period, {{#if (eq reload_mode 'PERIODIC')}}pdTRUE{{else}}pdFALSE{{/if}}, (void *) {{#if (eq timer_id 0)}}NULL{{else}}{{timer_id}}{{/if}}, {{callback_function}});
+{{else}}
+  {{timer_name}}_Handle = xTimerCreateStatic("{{timer_name}}", {{timer_name}}_period, {{#if (eq reload_mode 'PERIODIC')}}pdTRUE{{else}}pdFALSE{{/if}}, (void *) {{#if (eq timer_id 0)}}NULL{{else}}{{timer_id}}{{/if}}, {{callback_function}}, &{{buffer_name}});
+{{/if}}
+
+  if ({{timer_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each events}}
+  /* {{event_name}} creation-------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{event_name}}_Handle = xEventGroupCreate();
+{{else}}
+  {{event_name}}_Handle = xEventGroupCreateStatic(&{{buffer_name}});
+{{/if}}
+
+  if ({{event_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each mutexes}}
+  /* {{mutex_name}} creation-----------------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{mutex_name}}_Handle = xSemaphoreCreateMutex();
+{{else}}
+  {{mutex_name}}_Handle = xSemaphoreCreateMutexStatic(&{{buffer_name}});
+{{/if}}
+
+  if ({{mutex_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each recursive_mutexes}}
+  /* {{recursive_mutex_name}} creation-------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{recursive_mutex_name}}_Handle = xSemaphoreCreateRecursiveMutex();
+{{else}}
+  {{recursive_mutex_name}}_Handle = xSemaphoreCreateRecursiveMutexStatic(&{{buffer_name}});
+{{/if}}
+
+  if ({{recursive_mutex_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each queue_sets}}
+  /* {{queue_set_name}} creation-------------------------*/
+  {{queue_set_name}}_Handle = xQueueCreateSet({{queue_set_name}}_length);
+
+  if ({{queue_set_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+{{#each stream_buffers}}
+  /* {{stream_buffer_name}} creation-------------------------*/
+{{#if (eq memory_allocation 'DYNAMIC')}}
+  {{stream_buffer_name}}_Handle = xStreamBufferCreate({{stream_buffer_name}}_size, {{stream_buffer_name}}_trigger_level);
+{{else}}
+  {{stream_buffer_name}}_Handle = xStreamBufferCreateStatic({{stream_buffer_name}}_size, {{stream_buffer_name}}_trigger_level, {{buffer_storage}}, &{{stream_buffer_control}});
+{{/if}}
+
+  if ({{stream_buffer_name}}_Handle == NULL)
+  {
+      return -1;
+  }
+
+{{/each}}
+  return 0;
+}
+
+{{#if tasks.length}}
+/* Tasks entry function ------------------------------------------------------*/
+{{#each tasks~}}
+/**
+  * @brief Function implementing the {{task_name}} thread.
+  * @param pvParameters: A pointer to the parameters passed to the task.
+  * @retval None
+  */
+static void {{entry_function}}(void *pvParameters)
+{
+  ( void ) pvParameters;
+
+  for(;;)
+  {
+    /* Infinite loop executing {{task_name}} functionality. */
+  }
+}
+
+{{/each}}
+{{~/if}}
+{{#if timers.length}}
+/* Software Timers Callbacks function ----------------------------------------*/
+{{#each timers~}}
+/**
+  * @brief Function implementing the {{timer_name}} callback.
+  * @param xTimer: Handle to the timer that triggered the callback.
+  * @retval None
+  */
+void {{callback_function}}(TimerHandle_t xTimer)
+{
+  ( void ) xTimer;
+}
+
+{{/each}}
+{{~/if}}
+{{~/with}}
+{{#with basic~}}
+{{#with kernel~}}
+{{#if tickless_mode}}
+/**
+  * @brief Function for pre-sleep processing in tickless idle mode.
+  * @param ulExpectedIdleTime: The expected idle time in ticks before the next task is due to run.
+  * @retval None
+  */
+void app_freertos_pre_sleep (uint32_t ulExpectedIdleTime)
+{
+  ( void ) ulExpectedIdleTime;
+{{#if (eq @root.freertos_cxt.interfaces.low_power.interface 'DEFAULT')}}
+  /* Enter low-power mode */
+  mx_pwr_enter_low_power();
+{{/if}}
+}
+
+/**
+  * @brief Function for post-sleep processing in tickless idle mode.
+  * @param ulExpectedIdleTime: The expected idle time in ticks before the next task is due to run.
+  * @retval None
+  */
+void app_freertos_post_sleep (uint32_t ulExpectedIdleTime)
+{
+  ( void ) ulExpectedIdleTime;
+{{#if (eq @root.freertos_cxt.interfaces.low_power.interface 'DEFAULT')}}
+  /* Exit low-power mode */
+  mx_pwr_exit_low_power();
+{{/if}}
+}
+
+{{/if}}
+
+{{~/with}}
+{{#with memory_management~}}
+{{#with more~}}
+{{#if heap_protector}}
+/**
+ * @brief   Function to get a random heap canary value.
+ * @param   pxHeapCanary: Pointer to store the random canary value.
+ * @retval  None
+ */
+void vApplicationGetRandomHeapCanary( portPOINTER_SIZE_TYPE * pxHeapCanary)
+{
+  ( void ) pxHeapCanary;
+}
+
+{{/if}}
+{{#if stack_allocation_from_separate_heap}}
+/**
+  * @brief   Allocates a memory block of the specified size for a task stack.
+  * @param   xSize: Size of the memory block to allocate (in bytes).
+  * @retval  Pointer to the allocated memory, or NULL if allocation fails.
+  */
+void * pvPortMallocStack( size_t xSize )
+{
+  /* Generated when configSTACK_ALLOCATION_FROM_SEPARATE_HEAP == 1.
+    Function called in tasks.c.
+    TO BE COMPLETED or TO BE REPLACED by a user one. */
+    ( void ) xSize;
+
+    return NULL;
+}
+
+/**
+  * @brief   Frees a previously allocated task stack memory block.
+  * @param   pv: Pointer to the memory block to free.
+  * @retval  None
+  */
+void vPortFreeStack( void * pv  )
+{
+  /* Generated when configSTACK_ALLOCATION_FROM_SEPARATE_HEAP == 1.
+    Function called in tasks.c.
+    TO BE COMPLETED or TO BE REPLACED by a user one. */
+    ( void ) pv;
+}
+{{/if}}
+{{~/with}}
+{{~/with~}}
+
+{{#with advanced_configuration_parameters_selector~}}
+{{#with hook_selector~}}
+{{#if (or use_idle_hook use_tick_hook use_malloc_failed_hook use_daemon_task_startup_hook)}}
+/* Advanced Hook function ----------------------------------*/
+{{#if use_idle_hook}}
+/**
+  * @brief Function for the application Idle Hook.
+  * @param None
+  * @retval None
+  */
+void vApplicationIdleHook (void)
+{
+}
+
+{{/if}}
+{{#if use_tick_hook}}
+/**
+  * @brief Function for the application Tick Hook.
+  * @param None
+  * @retval None
+  */
+void vApplicationTickHook (void)
+{
+}
+
+{{/if}}
+{{#if use_malloc_failed_hook}}
+/**
+  * @brief Function for the application Malloc Failed Hook.
+  * @param None
+  * @retval None
+  */
+void vApplicationMallocFailedHook (void)
+{
+  /* If configUSE_MALLOC_FAILED_HOOK is set to 1 then this function will
+  be called automatically if a call to pvPortMalloc() fails.  pvPortMalloc()
+  is called automatically when a task, queue or semaphore is created. */
+  for( ;; );
+}
+
+{{/if}}
+{{#if use_daemon_task_startup_hook}}
+/**
+  * @brief Function for the application Daemon Task Startup Hook.
+  * @param None
+  * @retval None
+  */
+void vApplicationDaemonTaskStartupHook (void)
+{
+}
+
+{{/if}}
+{{/if}}
+{{#if (eq check_for_stack_overflow '1')}}
+/**
+  * @brief Function for the application Stack Overflow Hook.
+  * @param xTask: Handle of the task that overflowed its stack.
+  * @param pcTaskName: Name of the task that overflowed its stack.
+  * @retval None
+  */
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char * pcTaskName)
+{
+  /* If configCHECK_FOR_STACK_OVERFLOW is set to either 1 or 2 then this
+  function will automatically get called if a task overflows its stack. */
+  ( void ) xTask;
+  ( void ) pcTaskName;
+
+  for( ;; );
+}
+
+{{/if}}
+{{#if (eq check_for_stack_overflow '2')}}
+/**
+  * @brief Function for the application Stack Overflow Hook.
+  * @param xTask: Handle of the task that overflowed its stack.
+  * @param pcTaskName: Name of the task that overflowed its stack.
+  * @retval None
+  */
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char * pcTaskName)
+{
+  /* If configCHECK_FOR_STACK_OVERFLOW is set to either 1 or 2 then this
+  function will automatically get called if a task overflows its stack. */
+  ( void ) xTask;
+  ( void ) pcTaskName;
+
+  for( ;; );
+}
+
+{{/if}}
+
+{{~/with}}
+{{~#with task_statistics_and_run_time_selector~}}
+{{#if (or generate_run_time_stats)}}
+/* Run Time Counter Functions -------------------------------*/
+{{#if generate_run_time_stats}}
+/**
+  * @brief Function to configure the run-time timer counter.
+  * @param None
+  * @retval None
+  */
+void ConfigRunTimeCounter (void)
+{
+}
+
+/**
+  * @brief Function to get the current value of the run-time timer counter.
+  * @param None
+  * @retval uint64_t The current counter value.
+  */
+uint64_t GetRunTimeCounterValue (void)
+{
+  return 0;
+}
+{{/if}}
+
+{{/if}}
+{{~/with~}}
+{{~/with~}}
+{{~/with}}
+{{#with security~}}
+{{#if pac}}
+/**
+  * @brief   Generates a 128-bit random PAC key for a task.
+  * @param   pulTaskPacKey: Pointer to a 4-word (128-bits) array to be filled with a 128-bit random number.
+  * @retval  None
+  */
+void vApplicationGenerateTaskRandomPacKey( uint32_t * pulTaskPacKey )
+{
+  ( void ) pulTaskPacKey;
+}
+
+{{/if}}
+{{~/with~}}
+{{~/with~}}
+{{~/with~}}

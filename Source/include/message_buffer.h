@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V11.2.0
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * FreeRTOS Kernel V10.6.2
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -43,12 +43,12 @@
  * writer and reader to be different tasks or interrupts, but, unlike other
  * FreeRTOS objects, it is not safe to have multiple different writers or
  * multiple different readers.  If there are to be multiple different writers
- * then the application writer must serialize calls to writing API functions
- * (such as xStreamBufferSend()).  Likewise, if there are to be multiple
- * different readers then the application writer must serialize calls to reading
- * API functions (such as xStreamBufferReceive()).  One way to achieve such
- * serialization in single core or SMP kernel is to place each API call inside a
- * critical section and use a block time of 0.
+ * then the application writer must place each call to a writing API function
+ * (such as xMessageBufferSend()) inside a critical section and set the send
+ * block time to 0.  Likewise, if there are to be multiple different readers
+ * then the application writer must place each call to a reading API function
+ * (such as xMessageBufferRead()) inside a critical section and set the receive
+ * timeout to 0.
  *
  * Message buffers hold variable length messages.  To enable that, when a
  * message is written to the message buffer an additional sizeof( size_t ) bytes
@@ -100,8 +100,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * configSUPPORT_DYNAMIC_ALLOCATION must be set to 1 or left undefined in
  * FreeRTOSConfig.h for xMessageBufferCreate() to be available.
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferCreate() to be available.
  *
  * @param xBufferSizeBytes The total number of bytes (not messages) the message
  * buffer will be able to hold at any one time.  When a message is written to
@@ -158,11 +156,11 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * \ingroup MessageBufferManagement
  */
 #define xMessageBufferCreate( xBufferSizeBytes ) \
-    xStreamBufferGenericCreate( ( xBufferSizeBytes ), ( size_t ) 0, sbTYPE_MESSAGE_BUFFER, NULL, NULL )
+    xStreamBufferGenericCreate( ( xBufferSizeBytes ), ( size_t ) 0, pdTRUE, NULL, NULL )
 
 #if ( configUSE_SB_COMPLETED_CALLBACK == 1 )
     #define xMessageBufferCreateWithCallback( xBufferSizeBytes, pxSendCompletedCallback, pxReceiveCompletedCallback ) \
-    xStreamBufferGenericCreate( ( xBufferSizeBytes ), ( size_t ) 0, sbTYPE_MESSAGE_BUFFER, ( pxSendCompletedCallback ), ( pxReceiveCompletedCallback ) )
+    xStreamBufferGenericCreate( ( xBufferSizeBytes ), ( size_t ) 0, pdTRUE, ( pxSendCompletedCallback ), ( pxReceiveCompletedCallback ) )
 #endif
 
 /**
@@ -170,14 +168,11 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * @code{c}
  * MessageBufferHandle_t xMessageBufferCreateStatic( size_t xBufferSizeBytes,
- *                                                   uint8_t *pucMessageBufferStorageArea,
- *                                                   StaticMessageBuffer_t *pxStaticMessageBuffer );
+ *                                                uint8_t *pucMessageBufferStorageArea,
+ *                                                StaticMessageBuffer_t *pxStaticMessageBuffer );
  * @endcode
  * Creates a new message buffer using statically allocated memory.  See
  * xMessageBufferCreate() for a version that uses dynamically allocated memory.
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferCreateStatic() to be available.
  *
  * @param xBufferSizeBytes The size, in bytes, of the buffer pointed to by the
  * pucMessageBufferStorageArea parameter.  When a message is written to the
@@ -243,11 +238,11 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * \ingroup MessageBufferManagement
  */
 #define xMessageBufferCreateStatic( xBufferSizeBytes, pucMessageBufferStorageArea, pxStaticMessageBuffer ) \
-    xStreamBufferGenericCreateStatic( ( xBufferSizeBytes ), 0, sbTYPE_MESSAGE_BUFFER, ( pucMessageBufferStorageArea ), ( pxStaticMessageBuffer ), NULL, NULL )
+    xStreamBufferGenericCreateStatic( ( xBufferSizeBytes ), 0, pdTRUE, ( pucMessageBufferStorageArea ), ( pxStaticMessageBuffer ), NULL, NULL )
 
 #if ( configUSE_SB_COMPLETED_CALLBACK == 1 )
     #define xMessageBufferCreateStaticWithCallback( xBufferSizeBytes, pucMessageBufferStorageArea, pxStaticMessageBuffer, pxSendCompletedCallback, pxReceiveCompletedCallback ) \
-    xStreamBufferGenericCreateStatic( ( xBufferSizeBytes ), 0, sbTYPE_MESSAGE_BUFFER, ( pucMessageBufferStorageArea ), ( pxStaticMessageBuffer ), ( pxSendCompletedCallback ), ( pxReceiveCompletedCallback ) )
+    xStreamBufferGenericCreateStatic( ( xBufferSizeBytes ), 0, pdTRUE, ( pucMessageBufferStorageArea ), ( pxStaticMessageBuffer ), ( pxSendCompletedCallback ), ( pxReceiveCompletedCallback ) )
 #endif
 
 /**
@@ -262,9 +257,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * Retrieve pointers to a statically created message buffer's data structure
  * buffer and storage area buffer. These are the same buffers that are supplied
  * at the time of creation.
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferGetStaticBuffers() to be available.
  *
  * @param xMessageBuffer The message buffer for which to retrieve the buffers.
  *
@@ -289,9 +281,9 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * @code{c}
  * size_t xMessageBufferSend( MessageBufferHandle_t xMessageBuffer,
- *                            const void *pvTxData,
- *                            size_t xDataLengthBytes,
- *                            TickType_t xTicksToWait );
+ *                         const void *pvTxData,
+ *                         size_t xDataLengthBytes,
+ *                         TickType_t xTicksToWait );
  * @endcode
  *
  * Sends a discrete message to the message buffer.  The message can be any
@@ -306,19 +298,16 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * writer and reader to be different tasks or interrupts, but, unlike other
  * FreeRTOS objects, it is not safe to have multiple different writers or
  * multiple different readers.  If there are to be multiple different writers
- * then the application writer must serialize calls to writing API functions
- * (such as xStreamBufferSend()).  Likewise, if there are to be multiple
- * different readers then the application writer must serialize calls to reading
- * API functions (such as xStreamBufferReceive()).  One way to achieve such
- * serialization in single core or SMP kernel is to place each API call inside a
- * critical section and use a block time of 0.
+ * then the application writer must place each call to a writing API function
+ * (such as xMessageBufferSend()) inside a critical section and set the send
+ * block time to 0.  Likewise, if there are to be multiple different readers
+ * then the application writer must place each call to a reading API function
+ * (such as xMessageBufferRead()) inside a critical section and set the receive
+ * block time to 0.
  *
  * Use xMessageBufferSend() to write to a message buffer from a task.  Use
  * xMessageBufferSendFromISR() to write to a message buffer from an interrupt
  * service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferSend() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer to which a message is
  * being sent.
@@ -392,9 +381,9 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * @code{c}
  * size_t xMessageBufferSendFromISR( MessageBufferHandle_t xMessageBuffer,
- *                                   const void *pvTxData,
- *                                   size_t xDataLengthBytes,
- *                                   BaseType_t *pxHigherPriorityTaskWoken );
+ *                                const void *pvTxData,
+ *                                size_t xDataLengthBytes,
+ *                                BaseType_t *pxHigherPriorityTaskWoken );
  * @endcode
  *
  * Interrupt safe version of the API function that sends a discrete message to
@@ -409,19 +398,16 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * writer and reader to be different tasks or interrupts, but, unlike other
  * FreeRTOS objects, it is not safe to have multiple different writers or
  * multiple different readers.  If there are to be multiple different writers
- * then the application writer must serialize calls to writing API functions
- * (such as xStreamBufferSend()).  Likewise, if there are to be multiple
- * different readers then the application writer must serialize calls to reading
- * API functions (such as xStreamBufferReceive()).  One way to achieve such
- * serialization in single core or SMP kernel is to place each API call inside a
- * critical section and use a block time of 0.
+ * then the application writer must place each call to a writing API function
+ * (such as xMessageBufferSend()) inside a critical section and set the send
+ * block time to 0.  Likewise, if there are to be multiple different readers
+ * then the application writer must place each call to a reading API function
+ * (such as xMessageBufferRead()) inside a critical section and set the receive
+ * block time to 0.
  *
  * Use xMessageBufferSend() to write to a message buffer from a task.  Use
  * xMessageBufferSendFromISR() to write to a message buffer from an interrupt
  * service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferSendFromISR() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer to which a message is
  * being sent.
@@ -500,9 +486,9 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * @code{c}
  * size_t xMessageBufferReceive( MessageBufferHandle_t xMessageBuffer,
- *                               void *pvRxData,
- *                               size_t xBufferLengthBytes,
- *                               TickType_t xTicksToWait );
+ *                            void *pvRxData,
+ *                            size_t xBufferLengthBytes,
+ *                            TickType_t xTicksToWait );
  * @endcode
  *
  * Receives a discrete message from a message buffer.  Messages can be of
@@ -516,19 +502,16 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * writer and reader to be different tasks or interrupts, but, unlike other
  * FreeRTOS objects, it is not safe to have multiple different writers or
  * multiple different readers.  If there are to be multiple different writers
- * then the application writer must serialize calls to writing API functions
- * (such as xStreamBufferSend()).  Likewise, if there are to be multiple
- * different readers then the application writer must serialize calls to reading
- * API functions (such as xStreamBufferReceive()).  One way to achieve such
- * serialization in single core or SMP kernel is to place each API call inside a
- * critical section and use a block time of 0.
+ * then the application writer must place each call to a writing API function
+ * (such as xMessageBufferSend()) inside a critical section and set the send
+ * block time to 0.  Likewise, if there are to be multiple different readers
+ * then the application writer must place each call to a reading API function
+ * (such as xMessageBufferRead()) inside a critical section and set the receive
+ * block time to 0.
  *
  * Use xMessageBufferReceive() to read from a message buffer from a task.  Use
  * xMessageBufferReceiveFromISR() to read from a message buffer from an
  * interrupt service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferReceive() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer from which a message
  * is being received.
@@ -593,9 +576,9 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * @code{c}
  * size_t xMessageBufferReceiveFromISR( MessageBufferHandle_t xMessageBuffer,
- *                                      void *pvRxData,
- *                                      size_t xBufferLengthBytes,
- *                                      BaseType_t *pxHigherPriorityTaskWoken );
+ *                                   void *pvRxData,
+ *                                   size_t xBufferLengthBytes,
+ *                                   BaseType_t *pxHigherPriorityTaskWoken );
  * @endcode
  *
  * An interrupt safe version of the API function that receives a discrete
@@ -610,19 +593,16 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * writer and reader to be different tasks or interrupts, but, unlike other
  * FreeRTOS objects, it is not safe to have multiple different writers or
  * multiple different readers.  If there are to be multiple different writers
- * then the application writer must serialize calls to writing API functions
- * (such as xStreamBufferSend()).  Likewise, if there are to be multiple
- * different readers then the application writer must serialize calls to reading
- * API functions (such as xStreamBufferReceive()).  One way to achieve such
- * serialization in single core or SMP kernel is to place each API call inside a
- * critical section and use a block time of 0.
+ * then the application writer must place each call to a writing API function
+ * (such as xMessageBufferSend()) inside a critical section and set the send
+ * block time to 0.  Likewise, if there are to be multiple different readers
+ * then the application writer must place each call to a reading API function
+ * (such as xMessageBufferRead()) inside a critical section and set the receive
+ * block time to 0.
  *
  * Use xMessageBufferReceive() to read from a message buffer from a task.  Use
  * xMessageBufferReceiveFromISR() to read from a message buffer from an
  * interrupt service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferReceiveFromISR() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer from which a message
  * is being received.
@@ -707,9 +687,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * A message buffer handle must not be used after the message buffer has been
  * deleted.
  *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * vMessageBufferDelete() to be available.
- *
  * @param xMessageBuffer The handle of the message buffer to be deleted.
  *
  */
@@ -726,9 +703,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * cannot accept any more messages, of any size, until space is made available
  * by a message being removed from the message buffer.
  *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferIsFull() to be available.
- *
  * @param xMessageBuffer The handle of the message buffer being queried.
  *
  * @return If the message buffer referenced by xMessageBuffer is full then
@@ -744,9 +718,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * @endcode
  *
  * Tests to see if a message buffer is empty (does not contain any messages).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferIsEmpty() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer being queried.
  *
@@ -768,13 +739,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * A message buffer can only be reset if there are no tasks blocked on it.
  *
- * Use xMessageBufferReset() to reset a message buffer from a task.
- * Use xMessageBufferResetFromISR() to reset a message buffer from an
- * interrupt service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferReset() to be available.
- *
  * @param xMessageBuffer The handle of the message buffer being reset.
  *
  * @return If the message buffer was reset then pdPASS is returned.  If the
@@ -792,44 +756,9 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
 /**
  * message_buffer.h
  * @code{c}
- * BaseType_t xMessageBufferResetFromISR( MessageBufferHandle_t xMessageBuffer );
- * @endcode
- *
- * An interrupt safe version of the API function that resets the message buffer.
- * Resets a message buffer to its initial empty state, discarding any message it
- * contained.
- *
- * A message buffer can only be reset if there are no tasks blocked on it.
- *
- * Use xMessageBufferReset() to reset a message buffer from a task.
- * Use xMessageBufferResetFromISR() to reset a message buffer from an
- * interrupt service routine (ISR).
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferResetFromISR() to be available.
- *
- * @param xMessageBuffer The handle of the message buffer being reset.
- *
- * @return If the message buffer was reset then pdPASS is returned.  If the
- * message buffer could not be reset because either there was a task blocked on
- * the message queue to wait for space to become available, or to wait for a
- * a message to be available, then pdFAIL is returned.
- *
- * \defgroup xMessageBufferResetFromISR xMessageBufferResetFromISR
- * \ingroup MessageBufferManagement
- */
-#define xMessageBufferResetFromISR( xMessageBuffer ) \
-    xStreamBufferResetFromISR( xMessageBuffer )
-
-/**
- * message_buffer.h
- * @code{c}
  * size_t xMessageBufferSpaceAvailable( MessageBufferHandle_t xMessageBuffer );
  * @endcode
  * Returns the number of bytes of free space in the message buffer.
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferSpaceAvailable() to be available.
  *
  * @param xMessageBuffer The handle of the message buffer being queried.
  *
@@ -857,9 +786,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * Useful if xMessageBufferReceive() returned 0 because the size of the buffer
  * passed into xMessageBufferReceive() was too small to hold the next message.
  *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferNextLengthBytes() to be available.
- *
  * @param xMessageBuffer The handle of the message buffer being queried.
  *
  * @return The length (in bytes) of the next message in the message buffer, or 0
@@ -869,7 +795,7 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  * \ingroup MessageBufferManagement
  */
 #define xMessageBufferNextLengthBytes( xMessageBuffer ) \
-    xStreamBufferNextMessageLengthBytes( xMessageBuffer )
+    xStreamBufferNextMessageLengthBytes( xMessageBuffer ) PRIVILEGED_FUNCTION;
 
 /**
  * message_buffer.h
@@ -890,9 +816,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * See the example implemented in FreeRTOS/Demo/Minimal/MessageBufferAMP.c for
  * additional information.
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferSendCompletedFromISR() to be available.
  *
  * @param xMessageBuffer The handle of the stream buffer to which data was
  * written.
@@ -934,9 +857,6 @@ typedef StreamBufferHandle_t MessageBufferHandle_t;
  *
  * See the example implemented in FreeRTOS/Demo/Minimal/MessageBufferAMP.c for
  * additional information.
- *
- * configUSE_STREAM_BUFFERS must be set to 1 in for FreeRTOSConfig.h for
- * xMessageBufferReceiveCompletedFromISR() to be available.
  *
  * @param xMessageBuffer The handle of the stream buffer from which data was
  * read.

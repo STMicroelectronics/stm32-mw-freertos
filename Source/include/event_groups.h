@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V11.2.0
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * FreeRTOS Kernel V10.6.2
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -40,20 +40,20 @@
  * item value.  It is important they don't clash with the
  * taskEVENT_LIST_ITEM_VALUE_IN_USE definition. */
 #if ( configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_16_BITS )
-    #define eventCLEAR_EVENTS_ON_EXIT_BIT    ( ( uint16_t ) 0x0100U )
-    #define eventUNBLOCKED_DUE_TO_BIT_SET    ( ( uint16_t ) 0x0200U )
-    #define eventWAIT_FOR_ALL_BITS           ( ( uint16_t ) 0x0400U )
-    #define eventEVENT_BITS_CONTROL_BYTES    ( ( uint16_t ) 0xff00U )
+    #define eventCLEAR_EVENTS_ON_EXIT_BIT    0x0100U
+    #define eventUNBLOCKED_DUE_TO_BIT_SET    0x0200U
+    #define eventWAIT_FOR_ALL_BITS           0x0400U
+    #define eventEVENT_BITS_CONTROL_BYTES    0xff00U
 #elif ( configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_32_BITS )
-    #define eventCLEAR_EVENTS_ON_EXIT_BIT    ( ( uint32_t ) 0x01000000U )
-    #define eventUNBLOCKED_DUE_TO_BIT_SET    ( ( uint32_t ) 0x02000000U )
-    #define eventWAIT_FOR_ALL_BITS           ( ( uint32_t ) 0x04000000U )
-    #define eventEVENT_BITS_CONTROL_BYTES    ( ( uint32_t ) 0xff000000U )
+    #define eventCLEAR_EVENTS_ON_EXIT_BIT    0x01000000UL
+    #define eventUNBLOCKED_DUE_TO_BIT_SET    0x02000000UL
+    #define eventWAIT_FOR_ALL_BITS           0x04000000UL
+    #define eventEVENT_BITS_CONTROL_BYTES    0xff000000UL
 #elif ( configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_64_BITS )
-    #define eventCLEAR_EVENTS_ON_EXIT_BIT    ( ( uint64_t ) 0x0100000000000000U )
-    #define eventUNBLOCKED_DUE_TO_BIT_SET    ( ( uint64_t ) 0x0200000000000000U )
-    #define eventWAIT_FOR_ALL_BITS           ( ( uint64_t ) 0x0400000000000000U )
-    #define eventEVENT_BITS_CONTROL_BYTES    ( ( uint64_t ) 0xff00000000000000U )
+    #define eventCLEAR_EVENTS_ON_EXIT_BIT    0x0100000000000000ULL
+    #define eventUNBLOCKED_DUE_TO_BIT_SET    0x0200000000000000ULL
+    #define eventWAIT_FOR_ALL_BITS           0x0400000000000000ULL
+    #define eventEVENT_BITS_CONTROL_BYTES    0xff00000000000000ULL
 #endif /* if ( configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_16_BITS ) */
 
 /* *INDENT-OFF* */
@@ -139,9 +139,6 @@ typedef TickType_t               EventBits_t;
  * each event group has 56 usable bits (bit 0 to bit 53). The EventBits_t type
  * is used to store event bits within an event group.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupCreate()
- * to be available.
- *
  * @return If the event group was created then a handle to the event group is
  * returned.  If there was insufficient FreeRTOS heap available to create the
  * event group then NULL is returned.  See https://www.FreeRTOS.org/a00111.html
@@ -199,9 +196,6 @@ typedef TickType_t               EventBits_t;
  * each event group has 56 usable bits (bit 0 to bit 53).  The EventBits_t type
  * is used to store event bits within an event group.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupCreateStatic()
- * to be available.
- *
  * @param pxEventGroupBuffer pxEventGroupBuffer must point to a variable of type
  * StaticEventGroup_t, which will be then be used to hold the event group's data
  * structures, removing the need for the memory to be allocated dynamically.
@@ -243,9 +237,6 @@ typedef TickType_t               EventBits_t;
  * previously created event group.
  *
  * This function cannot be called from an interrupt.
- *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupWaitBits()
- * to be available.
  *
  * @param xEventGroup The event group in which the bits are being tested.  The
  * event group must have previously been created using a call to
@@ -339,9 +330,6 @@ EventBits_t xEventGroupWaitBits( EventGroupHandle_t xEventGroup,
  *
  * Clear bits within an event group.  This function cannot be called from an
  * interrupt.
- *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupClearBits()
- * to be available.
  *
  * @param xEventGroup The event group in which the bits are to be cleared.
  *
@@ -473,9 +461,6 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup,
  * Setting bits in an event group will automatically unblock tasks that are
  * blocked waiting for the bits.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupSetBits()
- * to be available.
- *
  * @param xEventGroup The event group in which the bits are to be set.
  *
  * @param uxBitsToSet A bitwise value that indicates the bit or bits to set.
@@ -483,11 +468,14 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup,
  * and bit 0 set uxBitsToSet to 0x09.
  *
  * @return The value of the event group at the time the call to
- * xEventGroupSetBits() returns.  Returned value might have the bits specified
- * by the uxBitsToSet parameter cleared if setting a bit results in a task
- * that was waiting for the bit leaving the blocked state then it is possible
- * the bit will be cleared automatically (see the xClearBitOnExit parameter
- * of xEventGroupWaitBits()).
+ * xEventGroupSetBits() returns.  There are two reasons why the returned value
+ * might have the bits specified by the uxBitsToSet parameter cleared.  First,
+ * if setting a bit results in a task that was waiting for the bit leaving the
+ * blocked state then it is possible the bit will be cleared automatically
+ * (see the xClearBitOnExit parameter of xEventGroupWaitBits()).  Second, any
+ * unblocked (or otherwise Ready state) task that has a priority above that of
+ * the task that called xEventGroupSetBits() will execute and may change the
+ * event group value before the call to xEventGroupSetBits() returns.
  *
  * Example usage:
  * @code{c}
@@ -637,9 +625,6 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup,
  * this case all the bits specified by uxBitsToWait will be automatically
  * cleared before the function returns.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupSync()
- * to be available.
- *
  * @param xEventGroup The event group in which the bits are being tested.  The
  * event group must have previously been created using a call to
  * xEventGroupCreate().
@@ -758,9 +743,6 @@ EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup,
  * Returns the current value of the bits in an event group.  This function
  * cannot be used from an interrupt.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupGetBits()
- * to be available.
- *
  * @param xEventGroup The event group being queried.
  *
  * @return The event group bits at the time xEventGroupGetBits() was called.
@@ -777,9 +759,6 @@ EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup,
  * @endcode
  *
  * A version of xEventGroupGetBits() that can be called from an ISR.
- *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupGetBitsFromISR()
- * to be available.
  *
  * @param xEventGroup The event group being queried.
  *
@@ -800,9 +779,6 @@ EventBits_t xEventGroupGetBitsFromISR( EventGroupHandle_t xEventGroup ) PRIVILEG
  * xEventGroupCreate().  Tasks that are blocked on the event group will be
  * unblocked and obtain 0 as the event group's value.
  *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for vEventGroupDelete()
- * to be available.
- *
  * @param xEventGroup The event group being deleted.
  */
 void vEventGroupDelete( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
@@ -816,9 +792,6 @@ void vEventGroupDelete( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
  *
  * Retrieve a pointer to a statically created event groups's data structure
  * buffer. It is the same buffer that is supplied at the time of creation.
- *
- * The configUSE_EVENT_GROUPS configuration constant must be set to 1 for xEventGroupGetStaticBuffer()
- * to be available.
  *
  * @param xEventGroup The event group for which to retrieve the buffer.
  *
@@ -834,9 +807,9 @@ void vEventGroupDelete( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
 
 /* For internal use only. */
 void vEventGroupSetBitsCallback( void * pvEventGroup,
-                                 uint32_t ulBitsToSet ) PRIVILEGED_FUNCTION;
+                                 const uint32_t ulBitsToSet ) PRIVILEGED_FUNCTION;
 void vEventGroupClearBitsCallback( void * pvEventGroup,
-                                   uint32_t ulBitsToClear ) PRIVILEGED_FUNCTION;
+                                   const uint32_t ulBitsToClear ) PRIVILEGED_FUNCTION;
 
 
 #if ( configUSE_TRACE_FACILITY == 1 )

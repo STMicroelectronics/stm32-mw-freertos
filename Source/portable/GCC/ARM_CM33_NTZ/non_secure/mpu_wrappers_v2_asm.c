@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V11.2.0
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * FreeRTOS Kernel V10.6.2
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -62,11 +62,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskDelayUntil_Unpriv                        \n"
                 " MPU_xTaskDelayUntil_Priv:                             \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskDelayUntilImpl                         \n"
                 " MPU_xTaskDelayUntil_Unpriv:                           \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskDelayUntil ) : "memory"
@@ -90,11 +91,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskAbortDelay_Unpriv                        \n"
                 " MPU_xTaskAbortDelay_Priv:                             \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskAbortDelayImpl                         \n"
                 " MPU_xTaskAbortDelay_Unpriv:                           \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskAbortDelay ) : "memory"
@@ -118,11 +120,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskDelay_Unpriv                             \n"
                 " MPU_vTaskDelay_Priv:                                  \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskDelayImpl                              \n"
                 " MPU_vTaskDelay_Unpriv:                                \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskDelay ) : "memory"
@@ -146,11 +149,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxTaskPriorityGet_Unpriv                      \n"
                 " MPU_uxTaskPriorityGet_Priv:                           \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxTaskPriorityGetImpl                       \n"
                 " MPU_uxTaskPriorityGet_Unpriv:                         \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxTaskPriorityGet ) : "memory"
@@ -174,11 +178,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_eTaskGetState_Unpriv                          \n"
                 " MPU_eTaskGetState_Priv:                               \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_eTaskGetStateImpl                           \n"
                 " MPU_eTaskGetState_Unpriv:                             \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_eTaskGetState ) : "memory"
@@ -208,11 +213,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskGetInfo_Unpriv                           \n"
                 " MPU_vTaskGetInfo_Priv:                                \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskGetInfoImpl                            \n"
                 " MPU_vTaskGetInfo_Unpriv:                              \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskGetInfo ) : "memory"
@@ -236,11 +242,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGetIdleTaskHandle_Unpriv                 \n"
                 " MPU_xTaskGetIdleTaskHandle_Priv:                      \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGetIdleTaskHandleImpl                  \n"
                 " MPU_xTaskGetIdleTaskHandle_Unpriv:                    \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGetIdleTaskHandle ) : "memory"
@@ -264,11 +271,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskSuspend_Unpriv                           \n"
                 " MPU_vTaskSuspend_Priv:                                \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskSuspendImpl                            \n"
                 " MPU_vTaskSuspend_Unpriv:                              \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskSuspend ) : "memory"
@@ -292,11 +300,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskResume_Unpriv                            \n"
                 " MPU_vTaskResume_Priv:                                 \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskResumeImpl                             \n"
                 " MPU_vTaskResume_Unpriv:                               \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskResume ) : "memory"
@@ -318,11 +327,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xTaskGetTickCount_Unpriv                      \n"
             " MPU_xTaskGetTickCount_Priv:                           \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xTaskGetTickCountImpl                       \n"
             " MPU_xTaskGetTickCount_Unpriv:                         \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xTaskGetTickCount ) : "memory"
@@ -342,14 +352,40 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_uxTaskGetNumberOfTasks_Unpriv                 \n"
             " MPU_uxTaskGetNumberOfTasks_Priv:                      \n"
+            "     pop {r0}                                          \n"
             "     b MPU_uxTaskGetNumberOfTasksImpl                  \n"
             " MPU_uxTaskGetNumberOfTasks_Unpriv:                    \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_uxTaskGetNumberOfTasks ) : "memory"
+        );
+    }
+/*-----------------------------------------------------------*/
+
+    char * MPU_pcTaskGetName( TaskHandle_t xTaskToQuery ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
+
+    char * MPU_pcTaskGetName( TaskHandle_t xTaskToQuery ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_pcTaskGetNameImpl                         \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_pcTaskGetName_Unpriv                          \n"
+            " MPU_pcTaskGetName_Priv:                               \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_pcTaskGetNameImpl                           \n"
+            " MPU_pcTaskGetName_Unpriv:                             \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_pcTaskGetName ) : "memory"
         );
     }
 /*-----------------------------------------------------------*/
@@ -368,11 +404,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGetRunTimeCounter_Unpriv                \n"
                 " MPU_ulTaskGetRunTimeCounter_Priv:                     \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGetRunTimeCounterImpl                 \n"
                 " MPU_ulTaskGetRunTimeCounter_Unpriv:                   \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGetRunTimeCounter ) : "memory"
@@ -396,11 +433,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGetRunTimePercent_Unpriv                \n"
                 " MPU_ulTaskGetRunTimePercent_Priv:                     \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGetRunTimePercentImpl                 \n"
                 " MPU_ulTaskGetRunTimePercent_Unpriv:                   \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGetRunTimePercent ) : "memory"
@@ -424,11 +462,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGetIdleRunTimePercent_Unpriv            \n"
                 " MPU_ulTaskGetIdleRunTimePercent_Priv:                 \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGetIdleRunTimePercentImpl             \n"
                 " MPU_ulTaskGetIdleRunTimePercent_Unpriv:               \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGetIdleRunTimePercent ) : "memory"
@@ -452,11 +491,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGetIdleRunTimeCounter_Unpriv            \n"
                 " MPU_ulTaskGetIdleRunTimeCounter_Priv:                 \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGetIdleRunTimeCounterImpl             \n"
                 " MPU_ulTaskGetIdleRunTimeCounter_Unpriv:               \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGetIdleRunTimeCounter ) : "memory"
@@ -482,11 +522,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskSetApplicationTaskTag_Unpriv             \n"
                 " MPU_vTaskSetApplicationTaskTag_Priv:                  \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskSetApplicationTaskTagImpl              \n"
                 " MPU_vTaskSetApplicationTaskTag_Unpriv:                \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskSetApplicationTaskTag ) : "memory"
@@ -510,11 +551,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGetApplicationTaskTag_Unpriv             \n"
                 " MPU_xTaskGetApplicationTaskTag_Priv:                  \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGetApplicationTaskTagImpl              \n"
                 " MPU_xTaskGetApplicationTaskTag_Unpriv:                \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGetApplicationTaskTag ) : "memory"
@@ -542,11 +584,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTaskSetThreadLocalStoragePointer_Unpriv      \n"
                 " MPU_vTaskSetThreadLocalStoragePointer_Priv:           \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTaskSetThreadLocalStoragePointerImpl       \n"
                 " MPU_vTaskSetThreadLocalStoragePointer_Unpriv:         \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTaskSetThreadLocalStoragePointer ) : "memory"
@@ -572,11 +615,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_pvTaskGetThreadLocalStoragePointer_Unpriv     \n"
                 " MPU_pvTaskGetThreadLocalStoragePointer_Priv:          \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_pvTaskGetThreadLocalStoragePointerImpl      \n"
                 " MPU_pvTaskGetThreadLocalStoragePointer_Unpriv:        \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_pvTaskGetThreadLocalStoragePointer ) : "memory"
@@ -604,11 +648,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxTaskGetSystemState_Unpriv                   \n"
                 " MPU_uxTaskGetSystemState_Priv:                        \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxTaskGetSystemStateImpl                    \n"
                 " MPU_uxTaskGetSystemState_Unpriv:                      \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxTaskGetSystemState ) : "memory"
@@ -632,11 +677,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxTaskGetStackHighWaterMark_Unpriv            \n"
                 " MPU_uxTaskGetStackHighWaterMark_Priv:                 \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxTaskGetStackHighWaterMarkImpl             \n"
                 " MPU_uxTaskGetStackHighWaterMark_Unpriv:               \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxTaskGetStackHighWaterMark ) : "memory"
@@ -660,11 +706,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxTaskGetStackHighWaterMark2_Unpriv           \n"
                 " MPU_uxTaskGetStackHighWaterMark2_Priv:                \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxTaskGetStackHighWaterMark2Impl            \n"
                 " MPU_uxTaskGetStackHighWaterMark2_Unpriv:              \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxTaskGetStackHighWaterMark2 ) : "memory"
@@ -688,11 +735,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGetCurrentTaskHandle_Unpriv              \n"
                 " MPU_xTaskGetCurrentTaskHandle_Priv:                   \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGetCurrentTaskHandleImpl               \n"
                 " MPU_xTaskGetCurrentTaskHandle_Unpriv:                 \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGetCurrentTaskHandle ) : "memory"
@@ -716,11 +764,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGetSchedulerState_Unpriv                 \n"
                 " MPU_xTaskGetSchedulerState_Priv:                      \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGetSchedulerStateImpl                  \n"
                 " MPU_xTaskGetSchedulerState_Unpriv:                    \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGetSchedulerState ) : "memory"
@@ -742,11 +791,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_vTaskSetTimeOutState_Unpriv                   \n"
             " MPU_vTaskSetTimeOutState_Priv:                        \n"
+            "     pop {r0}                                          \n"
             "     b MPU_vTaskSetTimeOutStateImpl                    \n"
             " MPU_vTaskSetTimeOutState_Unpriv:                      \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_vTaskSetTimeOutState ) : "memory"
@@ -768,11 +818,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xTaskCheckForTimeOut_Unpriv                   \n"
             " MPU_xTaskCheckForTimeOut_Priv:                        \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xTaskCheckForTimeOutImpl                    \n"
             " MPU_xTaskCheckForTimeOut_Unpriv:                      \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xTaskCheckForTimeOut ) : "memory"
@@ -794,11 +845,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGenericNotify_Unpriv                     \n"
                 " MPU_xTaskGenericNotify_Priv:                          \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGenericNotifyImpl                      \n"
                 " MPU_xTaskGenericNotify_Unpriv:                        \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGenericNotify ) : "memory"
@@ -822,11 +874,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGenericNotifyWait_Unpriv                 \n"
                 " MPU_xTaskGenericNotifyWait_Priv:                      \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGenericNotifyWaitImpl                  \n"
                 " MPU_xTaskGenericNotifyWait_Unpriv:                    \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGenericNotifyWait ) : "memory"
@@ -854,11 +907,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGenericNotifyTake_Unpriv                \n"
                 " MPU_ulTaskGenericNotifyTake_Priv:                     \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGenericNotifyTakeImpl                 \n"
                 " MPU_ulTaskGenericNotifyTake_Unpriv:                   \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGenericNotifyTake ) : "memory"
@@ -884,11 +938,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTaskGenericNotifyStateClear_Unpriv           \n"
                 " MPU_xTaskGenericNotifyStateClear_Priv:                \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTaskGenericNotifyStateClearImpl            \n"
                 " MPU_xTaskGenericNotifyStateClear_Unpriv:              \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTaskGenericNotifyStateClear ) : "memory"
@@ -916,11 +971,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_ulTaskGenericNotifyValueClear_Unpriv          \n"
                 " MPU_ulTaskGenericNotifyValueClear_Priv:               \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_ulTaskGenericNotifyValueClearImpl           \n"
                 " MPU_ulTaskGenericNotifyValueClear_Unpriv:             \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_ulTaskGenericNotifyValueClear ) : "memory"
@@ -948,11 +1004,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xQueueGenericSend_Unpriv                      \n"
             " MPU_xQueueGenericSend_Priv:                           \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xQueueGenericSendImpl                       \n"
             " MPU_xQueueGenericSend_Unpriv:                         \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xQueueGenericSend ) : "memory"
@@ -972,11 +1029,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_uxQueueMessagesWaiting_Unpriv                 \n"
             " MPU_uxQueueMessagesWaiting_Priv:                      \n"
+            "     pop {r0}                                          \n"
             "     b MPU_uxQueueMessagesWaitingImpl                  \n"
             " MPU_uxQueueMessagesWaiting_Unpriv:                    \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_uxQueueMessagesWaiting ) : "memory"
@@ -996,11 +1054,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_uxQueueSpacesAvailable_Unpriv                 \n"
             " MPU_uxQueueSpacesAvailable_Priv:                      \n"
+            "     pop {r0}                                          \n"
             "     b MPU_uxQueueSpacesAvailableImpl                  \n"
             " MPU_uxQueueSpacesAvailable_Unpriv:                    \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_uxQueueSpacesAvailable ) : "memory"
@@ -1024,11 +1083,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xQueueReceive_Unpriv                          \n"
             " MPU_xQueueReceive_Priv:                               \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xQueueReceiveImpl                           \n"
             " MPU_xQueueReceive_Unpriv:                             \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xQueueReceive ) : "memory"
@@ -1052,11 +1112,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xQueuePeek_Unpriv                             \n"
             " MPU_xQueuePeek_Priv:                                  \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xQueuePeekImpl                              \n"
             " MPU_xQueuePeek_Unpriv:                                \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xQueuePeek ) : "memory"
@@ -1078,11 +1139,12 @@
             " push {r0}                                             \n"
             " mrs r0, control                                       \n"
             " tst r0, #1                                            \n"
-            " pop {r0}                                              \n"
             " bne MPU_xQueueSemaphoreTake_Unpriv                    \n"
             " MPU_xQueueSemaphoreTake_Priv:                         \n"
+            "     pop {r0}                                          \n"
             "     b MPU_xQueueSemaphoreTakeImpl                     \n"
             " MPU_xQueueSemaphoreTake_Unpriv:                       \n"
+            "     pop {r0}                                          \n"
             "     svc %0                                            \n"
             "                                                       \n"
             : : "i" ( SYSTEM_CALL_xQueueSemaphoreTake ) : "memory"
@@ -1104,11 +1166,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xQueueGetMutexHolder_Unpriv                   \n"
                 " MPU_xQueueGetMutexHolder_Priv:                        \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xQueueGetMutexHolderImpl                    \n"
                 " MPU_xQueueGetMutexHolder_Unpriv:                      \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xQueueGetMutexHolder ) : "memory"
@@ -1134,11 +1197,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xQueueTakeMutexRecursive_Unpriv               \n"
                 " MPU_xQueueTakeMutexRecursive_Priv:                    \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xQueueTakeMutexRecursiveImpl                \n"
                 " MPU_xQueueTakeMutexRecursive_Unpriv:                  \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xQueueTakeMutexRecursive ) : "memory"
@@ -1162,11 +1226,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xQueueGiveMutexRecursive_Unpriv               \n"
                 " MPU_xQueueGiveMutexRecursive_Priv:                    \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xQueueGiveMutexRecursiveImpl                \n"
                 " MPU_xQueueGiveMutexRecursive_Unpriv:                  \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xQueueGiveMutexRecursive ) : "memory"
@@ -1192,11 +1257,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xQueueSelectFromSet_Unpriv                    \n"
                 " MPU_xQueueSelectFromSet_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xQueueSelectFromSetImpl                     \n"
                 " MPU_xQueueSelectFromSet_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xQueueSelectFromSet ) : "memory"
@@ -1222,11 +1288,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xQueueAddToSet_Unpriv                         \n"
                 " MPU_xQueueAddToSet_Priv:                              \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xQueueAddToSetImpl                          \n"
                 " MPU_xQueueAddToSet_Unpriv:                            \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xQueueAddToSet ) : "memory"
@@ -1252,11 +1319,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vQueueAddToRegistry_Unpriv                    \n"
                 " MPU_vQueueAddToRegistry_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vQueueAddToRegistryImpl                     \n"
                 " MPU_vQueueAddToRegistry_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vQueueAddToRegistry ) : "memory"
@@ -1280,11 +1348,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vQueueUnregisterQueue_Unpriv                  \n"
                 " MPU_vQueueUnregisterQueue_Priv:                       \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vQueueUnregisterQueueImpl                   \n"
                 " MPU_vQueueUnregisterQueue_Unpriv:                     \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vQueueUnregisterQueue ) : "memory"
@@ -1308,11 +1377,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_pcQueueGetName_Unpriv                         \n"
                 " MPU_pcQueueGetName_Priv:                              \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_pcQueueGetNameImpl                          \n"
                 " MPU_pcQueueGetName_Unpriv:                            \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_pcQueueGetName ) : "memory"
@@ -1336,11 +1406,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_pvTimerGetTimerID_Unpriv                      \n"
                 " MPU_pvTimerGetTimerID_Priv:                           \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_pvTimerGetTimerIDImpl                       \n"
                 " MPU_pvTimerGetTimerID_Unpriv:                         \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_pvTimerGetTimerID ) : "memory"
@@ -1366,11 +1437,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTimerSetTimerID_Unpriv                       \n"
                 " MPU_vTimerSetTimerID_Priv:                            \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTimerSetTimerIDImpl                        \n"
                 " MPU_vTimerSetTimerID_Unpriv:                          \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTimerSetTimerID ) : "memory"
@@ -1394,11 +1466,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTimerIsTimerActive_Unpriv                    \n"
                 " MPU_xTimerIsTimerActive_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTimerIsTimerActiveImpl                     \n"
                 " MPU_xTimerIsTimerActive_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTimerIsTimerActive ) : "memory"
@@ -1422,11 +1495,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTimerGetTimerDaemonTaskHandle_Unpriv         \n"
                 " MPU_xTimerGetTimerDaemonTaskHandle_Priv:              \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTimerGetTimerDaemonTaskHandleImpl          \n"
                 " MPU_xTimerGetTimerDaemonTaskHandle_Unpriv:            \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTimerGetTimerDaemonTaskHandle ) : "memory"
@@ -1438,26 +1512,31 @@
 
     #if ( configUSE_TIMERS == 1 )
 
-        BaseType_t MPU_xTimerGenericCommandFromTaskEntry( const xTimerGenericCommandFromTaskParams_t * pxParams ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
+        BaseType_t MPU_xTimerGenericCommandEntry( const xTimerGenericCommandParams_t * pxParams ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        BaseType_t MPU_xTimerGenericCommandFromTaskEntry( const xTimerGenericCommandFromTaskParams_t * pxParams ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+        BaseType_t MPU_xTimerGenericCommandEntry( const xTimerGenericCommandParams_t * pxParams ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
         {
             __asm volatile
             (
                 " .syntax unified                                       \n"
-                " .extern MPU_xTimerGenericCommandFromTaskImpl          \n"
+                " .extern MPU_xTimerGenericCommandPrivImpl              \n"
                 "                                                       \n"
                 " push {r0}                                             \n"
+                " mrs r0, ipsr                                          \n"
+                " cmp r0, #0                                            \n"
+                " bne MPU_xTimerGenericCommand_Priv                     \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xTimerGenericCommandFromTask_Unpriv           \n"
-                " MPU_xTimerGenericCommandFromTask_Priv:                \n"
-                "     b MPU_xTimerGenericCommandFromTaskImpl            \n"
-                " MPU_xTimerGenericCommandFromTask_Unpriv:              \n"
+                " beq MPU_xTimerGenericCommand_Priv                     \n"
+                " MPU_xTimerGenericCommand_Unpriv:                      \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
+                " MPU_xTimerGenericCommand_Priv:                        \n"
+                "     pop {r0}                                          \n"
+                "     b MPU_xTimerGenericCommandPrivImpl                \n"
                 "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xTimerGenericCommandFromTask ) : "memory"
+                "                                                       \n"
+                : : "i" ( SYSTEM_CALL_xTimerGenericCommand ) : "memory"
             );
         }
 
@@ -1478,11 +1557,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_pcTimerGetName_Unpriv                         \n"
                 " MPU_pcTimerGetName_Priv:                              \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_pcTimerGetNameImpl                          \n"
                 " MPU_pcTimerGetName_Unpriv:                            \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_pcTimerGetName ) : "memory"
@@ -1495,10 +1575,10 @@
     #if ( configUSE_TIMERS == 1 )
 
         void MPU_vTimerSetReloadMode( TimerHandle_t xTimer,
-                                      const BaseType_t xAutoReload ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
+                                      const BaseType_t uxAutoReload ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
         void MPU_vTimerSetReloadMode( TimerHandle_t xTimer,
-                                      const BaseType_t xAutoReload ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+                                      const BaseType_t uxAutoReload ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
         {
             __asm volatile
             (
@@ -1508,11 +1588,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vTimerSetReloadMode_Unpriv                    \n"
                 " MPU_vTimerSetReloadMode_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vTimerSetReloadModeImpl                     \n"
                 " MPU_vTimerSetReloadMode_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vTimerSetReloadMode ) : "memory"
@@ -1536,11 +1617,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTimerGetReloadMode_Unpriv                    \n"
                 " MPU_xTimerGetReloadMode_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTimerGetReloadModeImpl                     \n"
                 " MPU_xTimerGetReloadMode_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTimerGetReloadMode ) : "memory"
@@ -1564,11 +1646,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxTimerGetReloadMode_Unpriv                   \n"
                 " MPU_uxTimerGetReloadMode_Priv:                        \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxTimerGetReloadModeImpl                    \n"
                 " MPU_uxTimerGetReloadMode_Unpriv:                      \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxTimerGetReloadMode ) : "memory"
@@ -1592,11 +1675,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTimerGetPeriod_Unpriv                        \n"
                 " MPU_xTimerGetPeriod_Priv:                             \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTimerGetPeriodImpl                         \n"
                 " MPU_xTimerGetPeriod_Unpriv:                           \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTimerGetPeriod ) : "memory"
@@ -1620,11 +1704,12 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_xTimerGetExpiryTime_Unpriv                    \n"
                 " MPU_xTimerGetExpiryTime_Priv:                         \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_xTimerGetExpiryTimeImpl                     \n"
                 " MPU_xTimerGetExpiryTime_Unpriv:                       \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_xTimerGetExpiryTime ) : "memory"
@@ -1634,129 +1719,117 @@
     #endif /* if ( configUSE_TIMERS == 1 ) */
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_EVENT_GROUPS == 1 )
+    EventBits_t MPU_xEventGroupWaitBitsEntry( const xEventGroupWaitBitsParams_t * pxParams ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        EventBits_t MPU_xEventGroupWaitBitsEntry( const xEventGroupWaitBitsParams_t * pxParams ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        EventBits_t MPU_xEventGroupWaitBitsEntry( const xEventGroupWaitBitsParams_t * pxParams ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xEventGroupWaitBitsImpl                   \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xEventGroupWaitBits_Unpriv                    \n"
-                " MPU_xEventGroupWaitBits_Priv:                         \n"
-                "     b MPU_xEventGroupWaitBitsImpl                     \n"
-                " MPU_xEventGroupWaitBits_Unpriv:                       \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xEventGroupWaitBits ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_EVENT_GROUPS == 1 ) */
+    EventBits_t MPU_xEventGroupWaitBitsEntry( const xEventGroupWaitBitsParams_t * pxParams ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xEventGroupWaitBitsImpl                   \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xEventGroupWaitBits_Unpriv                    \n"
+            " MPU_xEventGroupWaitBits_Priv:                         \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xEventGroupWaitBitsImpl                     \n"
+            " MPU_xEventGroupWaitBits_Unpriv:                       \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xEventGroupWaitBits ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_EVENT_GROUPS == 1 )
+    EventBits_t MPU_xEventGroupClearBits( EventGroupHandle_t xEventGroup,
+                                          const EventBits_t uxBitsToClear ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        EventBits_t MPU_xEventGroupClearBits( EventGroupHandle_t xEventGroup,
-                                              const EventBits_t uxBitsToClear ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        EventBits_t MPU_xEventGroupClearBits( EventGroupHandle_t xEventGroup,
-                                              const EventBits_t uxBitsToClear ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xEventGroupClearBitsImpl                  \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xEventGroupClearBits_Unpriv                   \n"
-                " MPU_xEventGroupClearBits_Priv:                        \n"
-                "     b MPU_xEventGroupClearBitsImpl                    \n"
-                " MPU_xEventGroupClearBits_Unpriv:                      \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xEventGroupClearBits ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_EVENT_GROUPS == 1 ) */
+    EventBits_t MPU_xEventGroupClearBits( EventGroupHandle_t xEventGroup,
+                                          const EventBits_t uxBitsToClear ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xEventGroupClearBitsImpl                  \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xEventGroupClearBits_Unpriv                   \n"
+            " MPU_xEventGroupClearBits_Priv:                        \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xEventGroupClearBitsImpl                    \n"
+            " MPU_xEventGroupClearBits_Unpriv:                      \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xEventGroupClearBits ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_EVENT_GROUPS == 1 )
+    EventBits_t MPU_xEventGroupSetBits( EventGroupHandle_t xEventGroup,
+                                        const EventBits_t uxBitsToSet ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        EventBits_t MPU_xEventGroupSetBits( EventGroupHandle_t xEventGroup,
-                                            const EventBits_t uxBitsToSet ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        EventBits_t MPU_xEventGroupSetBits( EventGroupHandle_t xEventGroup,
-                                            const EventBits_t uxBitsToSet ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xEventGroupSetBitsImpl                    \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xEventGroupSetBits_Unpriv                     \n"
-                " MPU_xEventGroupSetBits_Priv:                          \n"
-                "     b MPU_xEventGroupSetBitsImpl                      \n"
-                " MPU_xEventGroupSetBits_Unpriv:                        \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xEventGroupSetBits ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_EVENT_GROUPS == 1 ) */
+    EventBits_t MPU_xEventGroupSetBits( EventGroupHandle_t xEventGroup,
+                                        const EventBits_t uxBitsToSet ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xEventGroupSetBitsImpl                    \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xEventGroupSetBits_Unpriv                     \n"
+            " MPU_xEventGroupSetBits_Priv:                          \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xEventGroupSetBitsImpl                      \n"
+            " MPU_xEventGroupSetBits_Unpriv:                        \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xEventGroupSetBits ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_EVENT_GROUPS == 1 )
+    EventBits_t MPU_xEventGroupSync( EventGroupHandle_t xEventGroup,
+                                     const EventBits_t uxBitsToSet,
+                                     const EventBits_t uxBitsToWaitFor,
+                                     TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        EventBits_t MPU_xEventGroupSync( EventGroupHandle_t xEventGroup,
-                                         const EventBits_t uxBitsToSet,
-                                         const EventBits_t uxBitsToWaitFor,
-                                         TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        EventBits_t MPU_xEventGroupSync( EventGroupHandle_t xEventGroup,
-                                         const EventBits_t uxBitsToSet,
-                                         const EventBits_t uxBitsToWaitFor,
-                                         TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xEventGroupSyncImpl                       \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xEventGroupSync_Unpriv                        \n"
-                " MPU_xEventGroupSync_Priv:                             \n"
-                "     b MPU_xEventGroupSyncImpl                         \n"
-                " MPU_xEventGroupSync_Unpriv:                           \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xEventGroupSync ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_EVENT_GROUPS == 1 ) */
+    EventBits_t MPU_xEventGroupSync( EventGroupHandle_t xEventGroup,
+                                     const EventBits_t uxBitsToSet,
+                                     const EventBits_t uxBitsToWaitFor,
+                                     TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xEventGroupSyncImpl                       \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xEventGroupSync_Unpriv                        \n"
+            " MPU_xEventGroupSync_Priv:                             \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xEventGroupSyncImpl                         \n"
+            " MPU_xEventGroupSync_Unpriv:                           \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xEventGroupSync ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) )
+    #if ( configUSE_TRACE_FACILITY == 1 )
 
         UBaseType_t MPU_uxEventGroupGetNumber( void * xEventGroup ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
@@ -1770,21 +1843,22 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_uxEventGroupGetNumber_Unpriv                  \n"
                 " MPU_uxEventGroupGetNumber_Priv:                       \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_uxEventGroupGetNumberImpl                   \n"
                 " MPU_uxEventGroupGetNumber_Unpriv:                     \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_uxEventGroupGetNumber ) : "memory"
             );
         }
 
-    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) ) */
+    #endif /*( configUSE_TRACE_FACILITY == 1 )*/
 /*-----------------------------------------------------------*/
 
-    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) )
+    #if ( configUSE_TRACE_FACILITY == 1 )
 
         void MPU_vEventGroupSetNumber( void * xEventGroup,
                                        UBaseType_t uxEventGroupNumber ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
@@ -1800,256 +1874,233 @@
                 " push {r0}                                             \n"
                 " mrs r0, control                                       \n"
                 " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
                 " bne MPU_vEventGroupSetNumber_Unpriv                   \n"
                 " MPU_vEventGroupSetNumber_Priv:                        \n"
+                "     pop {r0}                                          \n"
                 "     b MPU_vEventGroupSetNumberImpl                    \n"
                 " MPU_vEventGroupSetNumber_Unpriv:                      \n"
+                "     pop {r0}                                          \n"
                 "     svc %0                                            \n"
                 "                                                       \n"
                 : : "i" ( SYSTEM_CALL_vEventGroupSetNumber ) : "memory"
             );
         }
 
-    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) ) */
+    #endif /*( configUSE_TRACE_FACILITY == 1 )*/
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    size_t MPU_xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
+                                  const void * pvTxData,
+                                  size_t xDataLengthBytes,
+                                  TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        size_t MPU_xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
-                                      const void * pvTxData,
-                                      size_t xDataLengthBytes,
-                                      TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        size_t MPU_xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
-                                      const void * pvTxData,
-                                      size_t xDataLengthBytes,
-                                      TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferSendImpl                     \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferSend_Unpriv                      \n"
-                " MPU_xStreamBufferSend_Priv:                           \n"
-                "     b MPU_xStreamBufferSendImpl                       \n"
-                " MPU_xStreamBufferSend_Unpriv:                         \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferSend ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    size_t MPU_xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,
+                                  const void * pvTxData,
+                                  size_t xDataLengthBytes,
+                                  TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferSendImpl                     \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferSend_Unpriv                      \n"
+            " MPU_xStreamBufferSend_Priv:                           \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferSendImpl                       \n"
+            " MPU_xStreamBufferSend_Unpriv:                         \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferSend ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    size_t MPU_xStreamBufferReceive( StreamBufferHandle_t xStreamBuffer,
+                                     void * pvRxData,
+                                     size_t xBufferLengthBytes,
+                                     TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        size_t MPU_xStreamBufferReceive( StreamBufferHandle_t xStreamBuffer,
-                                         void * pvRxData,
-                                         size_t xBufferLengthBytes,
-                                         TickType_t xTicksToWait ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        size_t MPU_xStreamBufferReceive( StreamBufferHandle_t xStreamBuffer,
-                                         void * pvRxData,
-                                         size_t xBufferLengthBytes,
-                                         TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferReceiveImpl                  \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferReceive_Unpriv                   \n"
-                " MPU_xStreamBufferReceive_Priv:                        \n"
-                "     b MPU_xStreamBufferReceiveImpl                    \n"
-                " MPU_xStreamBufferReceive_Unpriv:                      \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferReceive ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    size_t MPU_xStreamBufferReceive( StreamBufferHandle_t xStreamBuffer,
+                                     void * pvRxData,
+                                     size_t xBufferLengthBytes,
+                                     TickType_t xTicksToWait ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferReceiveImpl                  \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferReceive_Unpriv                   \n"
+            " MPU_xStreamBufferReceive_Priv:                        \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferReceiveImpl                    \n"
+            " MPU_xStreamBufferReceive_Unpriv:                      \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferReceive ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    BaseType_t MPU_xStreamBufferIsFull( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        BaseType_t MPU_xStreamBufferIsFull( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        BaseType_t MPU_xStreamBufferIsFull( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferIsFullImpl                   \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferIsFull_Unpriv                    \n"
-                " MPU_xStreamBufferIsFull_Priv:                         \n"
-                "     b MPU_xStreamBufferIsFullImpl                     \n"
-                " MPU_xStreamBufferIsFull_Unpriv:                       \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferIsFull ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    BaseType_t MPU_xStreamBufferIsFull( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferIsFullImpl                   \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferIsFull_Unpriv                    \n"
+            " MPU_xStreamBufferIsFull_Priv:                         \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferIsFullImpl                     \n"
+            " MPU_xStreamBufferIsFull_Unpriv:                       \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferIsFull ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    BaseType_t MPU_xStreamBufferIsEmpty( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        BaseType_t MPU_xStreamBufferIsEmpty( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        BaseType_t MPU_xStreamBufferIsEmpty( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferIsEmptyImpl                  \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferIsEmpty_Unpriv                   \n"
-                " MPU_xStreamBufferIsEmpty_Priv:                        \n"
-                "     b MPU_xStreamBufferIsEmptyImpl                    \n"
-                " MPU_xStreamBufferIsEmpty_Unpriv:                      \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferIsEmpty ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    BaseType_t MPU_xStreamBufferIsEmpty( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferIsEmptyImpl                  \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferIsEmpty_Unpriv                   \n"
+            " MPU_xStreamBufferIsEmpty_Priv:                        \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferIsEmptyImpl                    \n"
+            " MPU_xStreamBufferIsEmpty_Unpriv:                      \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferIsEmpty ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    size_t MPU_xStreamBufferSpacesAvailable( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        size_t MPU_xStreamBufferSpacesAvailable( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        size_t MPU_xStreamBufferSpacesAvailable( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferSpacesAvailableImpl          \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferSpacesAvailable_Unpriv           \n"
-                " MPU_xStreamBufferSpacesAvailable_Priv:                \n"
-                "     b MPU_xStreamBufferSpacesAvailableImpl            \n"
-                " MPU_xStreamBufferSpacesAvailable_Unpriv:              \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferSpacesAvailable ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    size_t MPU_xStreamBufferSpacesAvailable( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferSpacesAvailableImpl          \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferSpacesAvailable_Unpriv           \n"
+            " MPU_xStreamBufferSpacesAvailable_Priv:                \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferSpacesAvailableImpl            \n"
+            " MPU_xStreamBufferSpacesAvailable_Unpriv:              \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferSpacesAvailable ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    size_t MPU_xStreamBufferBytesAvailable( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        size_t MPU_xStreamBufferBytesAvailable( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        size_t MPU_xStreamBufferBytesAvailable( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferBytesAvailableImpl           \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferBytesAvailable_Unpriv            \n"
-                " MPU_xStreamBufferBytesAvailable_Priv:                 \n"
-                "     b MPU_xStreamBufferBytesAvailableImpl             \n"
-                " MPU_xStreamBufferBytesAvailable_Unpriv:               \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferBytesAvailable ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    size_t MPU_xStreamBufferBytesAvailable( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferBytesAvailableImpl           \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferBytesAvailable_Unpriv            \n"
+            " MPU_xStreamBufferBytesAvailable_Priv:                 \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferBytesAvailableImpl             \n"
+            " MPU_xStreamBufferBytesAvailable_Unpriv:               \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferBytesAvailable ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    BaseType_t MPU_xStreamBufferSetTriggerLevel( StreamBufferHandle_t xStreamBuffer,
+                                                 size_t xTriggerLevel ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        BaseType_t MPU_xStreamBufferSetTriggerLevel( StreamBufferHandle_t xStreamBuffer,
-                                                     size_t xTriggerLevel ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        BaseType_t MPU_xStreamBufferSetTriggerLevel( StreamBufferHandle_t xStreamBuffer,
-                                                     size_t xTriggerLevel ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferSetTriggerLevelImpl          \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferSetTriggerLevel_Unpriv           \n"
-                " MPU_xStreamBufferSetTriggerLevel_Priv:                \n"
-                "     b MPU_xStreamBufferSetTriggerLevelImpl            \n"
-                " MPU_xStreamBufferSetTriggerLevel_Unpriv:              \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferSetTriggerLevel ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    BaseType_t MPU_xStreamBufferSetTriggerLevel( StreamBufferHandle_t xStreamBuffer,
+                                                 size_t xTriggerLevel ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferSetTriggerLevelImpl          \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferSetTriggerLevel_Unpriv           \n"
+            " MPU_xStreamBufferSetTriggerLevel_Priv:                \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferSetTriggerLevelImpl            \n"
+            " MPU_xStreamBufferSetTriggerLevel_Unpriv:              \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferSetTriggerLevel ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
-    #if ( configUSE_STREAM_BUFFERS == 1 )
+    size_t MPU_xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
 
-        size_t MPU_xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer ) __attribute__( ( naked ) ) FREERTOS_SYSTEM_CALL;
-
-        size_t MPU_xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
-        {
-            __asm volatile
-            (
-                " .syntax unified                                       \n"
-                " .extern MPU_xStreamBufferNextMessageLengthBytesImpl   \n"
-                "                                                       \n"
-                " push {r0}                                             \n"
-                " mrs r0, control                                       \n"
-                " tst r0, #1                                            \n"
-                " pop {r0}                                              \n"
-                " bne MPU_xStreamBufferNextMessageLengthBytes_Unpriv    \n"
-                " MPU_xStreamBufferNextMessageLengthBytes_Priv:         \n"
-                "     b MPU_xStreamBufferNextMessageLengthBytesImpl     \n"
-                " MPU_xStreamBufferNextMessageLengthBytes_Unpriv:       \n"
-                "     svc %0                                            \n"
-                "                                                       \n"
-                : : "i" ( SYSTEM_CALL_xStreamBufferNextMessageLengthBytes ) : "memory"
-            );
-        }
-
-    #endif /* #if ( configUSE_STREAM_BUFFERS == 1 ) */
+    size_t MPU_xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer ) /* __attribute__ (( naked )) FREERTOS_SYSTEM_CALL */
+    {
+        __asm volatile
+        (
+            " .syntax unified                                       \n"
+            " .extern MPU_xStreamBufferNextMessageLengthBytesImpl   \n"
+            "                                                       \n"
+            " push {r0}                                             \n"
+            " mrs r0, control                                       \n"
+            " tst r0, #1                                            \n"
+            " bne MPU_xStreamBufferNextMessageLengthBytes_Unpriv    \n"
+            " MPU_xStreamBufferNextMessageLengthBytes_Priv:         \n"
+            "     pop {r0}                                          \n"
+            "     b MPU_xStreamBufferNextMessageLengthBytesImpl     \n"
+            " MPU_xStreamBufferNextMessageLengthBytes_Unpriv:       \n"
+            "     pop {r0}                                          \n"
+            "     svc %0                                            \n"
+            "                                                       \n"
+            : : "i" ( SYSTEM_CALL_xStreamBufferNextMessageLengthBytes ) : "memory"
+        );
+    }
 /*-----------------------------------------------------------*/
 
 #endif /* ( configENABLE_MPU == 1 ) && ( configUSE_MPU_WRAPPERS_V1 == 0 ) */

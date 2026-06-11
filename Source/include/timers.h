@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V11.2.0
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * FreeRTOS Kernel V10.6.2
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -34,8 +34,10 @@
     #error "include FreeRTOS.h must appear in source files before include timers.h"
 #endif
 
+/*lint -save -e537 This headers are only multiply included if the application code
+ * happens to also be including task.h. */
 #include "task.h"
-
+/*lint -restore */
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus
@@ -86,8 +88,8 @@ typedef void (* TimerCallbackFunction_t)( TimerHandle_t xTimer );
  * Defines the prototype to which functions used with the
  * xTimerPendFunctionCallFromISR() function must conform.
  */
-typedef void (* PendedFunction_t)( void * arg1,
-                                   uint32_t arg2 );
+typedef void (* PendedFunction_t)( void *,
+                                   uint32_t );
 
 /**
  * TimerHandle_t xTimerCreate(  const char * const pcTimerName,
@@ -227,7 +229,7 @@ typedef void (* PendedFunction_t)( void * arg1,
  * @endverbatim
  */
 #if ( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
-    TimerHandle_t xTimerCreate( const char * const pcTimerName,
+    TimerHandle_t xTimerCreate( const char * const pcTimerName, /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
                                 const TickType_t xTimerPeriodInTicks,
                                 const BaseType_t xAutoReload,
                                 void * const pvTimerID,
@@ -357,7 +359,7 @@ typedef void (* PendedFunction_t)( void * arg1,
  * @endverbatim
  */
 #if ( configSUPPORT_STATIC_ALLOCATION == 1 )
-    TimerHandle_t xTimerCreateStatic( const char * const pcTimerName,
+    TimerHandle_t xTimerCreateStatic( const char * const pcTimerName, /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
                                       const TickType_t xTimerPeriodInTicks,
                                       const BaseType_t xAutoReload,
                                       void * const pvTimerID,
@@ -737,18 +739,14 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * // The key press event handler.
  * void vKeyPressEventHandler( char cKey )
  * {
- *     // Reset the timer that is responsible for turning the back-light off after
- *     // 5 seconds of key inactivity. Wait 10 ticks for the command to be
- *     // successfully sent if it cannot be sent immediately.
- *     if( xTimerReset( xBacklightTimer, 10 ) == pdPASS )
+ *     // Ensure the LCD back-light is on, then reset the timer that is
+ *     // responsible for turning the back-light off after 5 seconds of
+ *     // key inactivity.  Wait 10 ticks for the command to be successfully sent
+ *     // if it cannot be sent immediately.
+ *     vSetBacklightState( BACKLIGHT_ON );
+ *     if( xTimerReset( xBacklightTimer, 100 ) != pdPASS )
  *     {
- *        // Turn on the LCD back-light. It will be turned off in the
- *        // vBacklightTimerCallback after 5 seconds of key inactivity.
- *        vSetBacklightState( BACKLIGHT_ON );
- *      }
- *     else
- *     {
- *         // The reset command was not executed successfully. Take appropriate
+ *         // The reset command was not executed successfully.  Take appropriate
  *         // action here.
  *     }
  *
@@ -757,15 +755,16 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  *
  * void main( void )
  * {
+ * int32_t x;
  *
  *     // Create then start the one-shot timer that is responsible for turning
  *     // the back-light off if no keys are pressed within a 5 second period.
  *     xBacklightTimer = xTimerCreate( "BacklightTimer",           // Just a text name, not used by the kernel.
- *                                     pdMS_TO_TICKS( 5000 ),      // The timer period in ticks.
+ *                                     ( 5000 / portTICK_PERIOD_MS), // The timer period in ticks.
  *                                     pdFALSE,                    // The timer is a one-shot timer.
  *                                     0,                          // The id is not used by the callback so can take any value.
  *                                     vBacklightTimerCallback     // The callback function that switches the LCD back-light off.
- *                                    );
+ *                                   );
  *
  *     if( xBacklightTimer == NULL )
  *     {
@@ -1199,12 +1198,10 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  *  }
  * @endverbatim
  */
-#if ( INCLUDE_xTimerPendFunctionCall == 1 )
-    BaseType_t xTimerPendFunctionCallFromISR( PendedFunction_t xFunctionToPend,
-                                              void * pvParameter1,
-                                              uint32_t ulParameter2,
-                                              BaseType_t * pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
-#endif
+BaseType_t xTimerPendFunctionCallFromISR( PendedFunction_t xFunctionToPend,
+                                          void * pvParameter1,
+                                          uint32_t ulParameter2,
+                                          BaseType_t * pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
 
 /**
  * BaseType_t xTimerPendFunctionCall( PendedFunction_t xFunctionToPend,
@@ -1238,12 +1235,10 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * timer daemon task, otherwise pdFALSE is returned.
  *
  */
-#if ( INCLUDE_xTimerPendFunctionCall == 1 )
-    BaseType_t xTimerPendFunctionCall( PendedFunction_t xFunctionToPend,
-                                       void * pvParameter1,
-                                       uint32_t ulParameter2,
-                                       TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
-#endif
+BaseType_t xTimerPendFunctionCall( PendedFunction_t xFunctionToPend,
+                                   void * pvParameter1,
+                                   uint32_t ulParameter2,
+                                   TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
 /**
  * const char * const pcTimerGetName( TimerHandle_t xTimer );
@@ -1254,7 +1249,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  *
  * @return The name assigned to the timer specified by the xTimer parameter.
  */
-const char * pcTimerGetName( TimerHandle_t xTimer ) PRIVILEGED_FUNCTION;
+const char * pcTimerGetName( TimerHandle_t xTimer ) PRIVILEGED_FUNCTION; /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
 
 /**
  * void vTimerSetReloadMode( TimerHandle_t xTimer, const BaseType_t xAutoReload );
@@ -1353,29 +1348,12 @@ TickType_t xTimerGetExpiryTime( TimerHandle_t xTimer ) PRIVILEGED_FUNCTION;
  * for use by the kernel only.
  */
 BaseType_t xTimerCreateTimerTask( void ) PRIVILEGED_FUNCTION;
+BaseType_t xTimerGenericCommand( TimerHandle_t xTimer,
+                                 const BaseType_t xCommandID,
+                                 const TickType_t xOptionalValue,
+                                 BaseType_t * const pxHigherPriorityTaskWoken,
+                                 const TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
-/*
- * Splitting the xTimerGenericCommand into two sub functions and making it a macro
- * removes a recursion path when called from ISRs. This is primarily for the XCore
- * XCC port which detects the recursion path and throws an error during compilation
- * when this is not split.
- */
-BaseType_t xTimerGenericCommandFromTask( TimerHandle_t xTimer,
-                                         const BaseType_t xCommandID,
-                                         const TickType_t xOptionalValue,
-                                         BaseType_t * const pxHigherPriorityTaskWoken,
-                                         const TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
-
-BaseType_t xTimerGenericCommandFromISR( TimerHandle_t xTimer,
-                                        const BaseType_t xCommandID,
-                                        const TickType_t xOptionalValue,
-                                        BaseType_t * const pxHigherPriorityTaskWoken,
-                                        const TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
-
-#define xTimerGenericCommand( xTimer, xCommandID, xOptionalValue, pxHigherPriorityTaskWoken, xTicksToWait )         \
-    ( ( xCommandID ) < tmrFIRST_FROM_ISR_COMMAND ?                                                                  \
-      xTimerGenericCommandFromTask( xTimer, xCommandID, xOptionalValue, pxHigherPriorityTaskWoken, xTicksToWait ) : \
-      xTimerGenericCommandFromISR( xTimer, xCommandID, xOptionalValue, pxHigherPriorityTaskWoken, xTicksToWait ) )
 #if ( configUSE_TRACE_FACILITY == 1 )
     void vTimerSetTimerNumber( TimerHandle_t xTimer,
                                UBaseType_t uxTimerNumber ) PRIVILEGED_FUNCTION;
@@ -1387,7 +1365,7 @@ BaseType_t xTimerGenericCommandFromISR( TimerHandle_t xTimer,
 /**
  * task.h
  * @code{c}
- * void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer, StackType_t ** ppxTimerTaskStackBuffer, configSTACK_DEPTH_TYPE * puxTimerTaskStackSize )
+ * void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer, StackType_t ** ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
  * @endcode
  *
  * This function is used to provide a statically allocated block of memory to FreeRTOS to hold the Timer Task TCB.  This function is required when
@@ -1395,11 +1373,11 @@ BaseType_t xTimerGenericCommandFromISR( TimerHandle_t xTimer,
  *
  * @param ppxTimerTaskTCBBuffer   A handle to a statically allocated TCB buffer
  * @param ppxTimerTaskStackBuffer A handle to a statically allocated Stack buffer for the idle task
- * @param puxTimerTaskStackSize   A pointer to the number of elements that will fit in the allocated stack buffer
+ * @param pulTimerTaskStackSize   A pointer to the number of elements that will fit in the allocated stack buffer
  */
     void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
                                          StackType_t ** ppxTimerTaskStackBuffer,
-                                         configSTACK_DEPTH_TYPE * puxTimerTaskStackSize );
+                                         uint32_t * pulTimerTaskStackSize );
 
 #endif
 
@@ -1413,18 +1391,9 @@ BaseType_t xTimerGenericCommandFromISR( TimerHandle_t xTimer,
  *
  * This hook function is called form the timer task once when the task starts running.
  */
-    /* MISRA Ref 8.6.1 [External linkage] */
-    /* More details at: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/MISRA.md#rule-86 */
-    /* coverity[misra_c_2012_rule_8_6_violation] */
     void vApplicationDaemonTaskStartupHook( void );
 
 #endif
-
-/*
- * This function resets the internal state of the timer module. It must be called
- * by the application before restarting the scheduler.
- */
-void vTimerResetState( void ) PRIVILEGED_FUNCTION;
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus

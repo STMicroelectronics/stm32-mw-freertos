@@ -1,6 +1,6 @@
 # Middleware FreeRTOS MCU Component
 
-![latest tag](https://img.shields.io/github/v/tag/STMicroelectronics/stm32_mw_freertos.svg?color=brightgreen)
+![tag](https://img.shields.io/badge/tag-v11.2.0_20260327-brightgreen.svg)
 
 ## Overview
 

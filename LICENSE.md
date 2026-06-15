@@ -1,6 +1,4 @@
-
-
-<!-- License terms for [MIT]-->
+<!-- License terms for [MIT] -->
 MIT
 
 Copyright [YEAR] [COPYRIGHT HOLDER]
@@ -13,22 +11,24 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 
 <!-- End of License terms -->
+
 <BR>
 <BR>
 
-<!-- Copyrights statements for [FreeRTOS Real Time Kernel]-->
+<!-- Copyrights statements for [FreeRTOS Real Time Kernel] [MIT] -->
 Copyrights statements for [FreeRTOS Real Time Kernel]
 
-	Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved
-	
 	Copyright 2024 Arm Limited and/or its affiliates
-	
-<!-- End of Copyrights statements for [FreeRTOS Real Time Kernel]-->
-<!-- Copyrights statements for [FreeRTOS Real Time Kernel_STM32]-->
+
+	Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved
+
+<!-- End of Copyrights statements for [FreeRTOS Real Time Kernel] -->
+
+<!-- Copyrights statements for [FreeRTOS Real Time Kernel_STM32] [MIT] -->
 Copyrights statements for [FreeRTOS Real Time Kernel_STM32]
 
 	Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved
-	
+
 	Copyright (c) 2026 STMicroelectronics.
-	
-<!-- End of Copyrights statements for [FreeRTOS Real Time Kernel_STM32]-->
+
+<!-- End of Copyrights statements for [FreeRTOS Real Time Kernel_STM32] -->

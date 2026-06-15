@@ -191,6 +191,15 @@ to all Cortex-M ports, and do not rely on any particular library functions. */
 header file. */
 #define configASSERT( x )                            if ((x) == 0) {taskDISABLE_INTERRUPTS(); for( ;; );}
 
+{{#if (eq @root.freertos_cxt.interfaces.portable.core "ARM_CM4F")}}
+/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
+standard names. */
+#define vPortSVCHandler SVC_Handler
+#define xPortPendSVHandler PendSV_Handler
+#define xPortSysTickHandler SysTick_Handler
+
+{{/if~}}
+
 {{#with basic}}
 {{~#with advanced_configuration_parameters_selector~}}
 {{~#with task_statistics_and_run_time_selector~}}

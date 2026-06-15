@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "componentid": "::RTOS:STM32CubeMX2 Config:FreeRTOS",
   "type": "object",
-  "grammarVersion": "3.8.0",
+  "grammarVersion": "3.9.0",
   "functions": [
     {
       "path": ".config/template/helpers/freertos_helpers.js",
@@ -25,7 +25,8 @@
               "actions": [
                 {
                   "type": "disable",
-                  "condition": "true"
+                  "condition": "true",
+                  "message": "FreeRTOS version is fixed and cannot be modified."
                 }
               ]
             },
@@ -36,7 +37,8 @@
               "actions": [
                 {
                   "type": "disable",
-                  "condition": "true"
+                  "condition": "true",
+                  "message": "This field is provided for information only and cannot be modified."
                 },
                 {
                   "type": "warning",
@@ -65,7 +67,8 @@
                   "actions": [
                     {
                       "type": "disable",
-                      "condition": "true"
+                      "condition": "true",
+                      "message": "The low footprint profile is not yet implemented and is currently unavailable."
                     }
                   ]
                 },
@@ -75,7 +78,8 @@
                   "actions": [
                     {
                       "type": "disable",
-                      "condition": "true"
+                      "condition": "true",
+                      "message": "The low power profile is not yet implemented and is currently unavailable."
                     }
                   ]
                 }
@@ -108,7 +112,8 @@
                         },
                         {
                           "type": "disable",
-                          "condition": "true"
+                          "condition": "true",
+                          "message": "This feature is not yet supported and cannot be enabled."
                         }
                       ]
                     },
@@ -243,11 +248,12 @@
                       "actions": [
                         {
                           "type": "enable",
-                          "condition": "$core.basic.kernel.queue_sets"
+                          "condition": "$core.basic.kernel.queue_sets",
+                          "message": "Enable queue sets to configure the queue size."
                         }
                       ],
                       "minimum": 0,
-                      "maximum": 255,
+                      "maximum": 603648,
                       "default": 8,
                       "display_format": [
                         "dec"
@@ -277,29 +283,6 @@
                       "type": "boolean",
                       "title": "Software timer",
                       "default": true,
-                      "actions": [
-                        {
-                          "type": "set",
-                          "condition": "!$core.basic.advanced_api_selector.more.xTaskGetSchedulerState ",
-                          "computed": {
-                            "const": "true"
-                          }
-                        },
-                        {
-                          "type": "set",
-                          "condition": "$core.basic.advanced_api_selector.more.xTimerPendFunctionCall ",
-                          "computed": {
-                            "const": "true"
-                          }
-                        },
-                        {
-                          "type": "set",
-                          "condition": "$core.basic.advanced_api_selector.more.xEventGroupSetBitFromISR ",
-                          "computed": {
-                            "const": "true"
-                          }
-                        }
-                      ],
                       "description": "Set to 1 to include software timer functionality in the build, or 0 to omit software timer functionality from the build."
                     },
                     "timer_task_priority_level": {
@@ -315,7 +298,8 @@
                       "actions": [
                         {
                           "type": "enable",
-                          "condition": "$core.basic.kernel.software_timer"
+                          "condition": "$core.basic.kernel.software_timer",
+                          "message": "Enable software timer to configure the timer task priority level."
                         },
                         {
                           "type": "warning",
@@ -331,7 +315,8 @@
                       "actions": [
                         {
                           "type": "enable",
-                          "condition": "$core.basic.kernel.software_timer"
+                          "condition": "$core.basic.kernel.software_timer",
+                          "message": "Enable software timer to configure the timer queue length."
                         }
                       ],
                       "minimum": 1,
@@ -354,7 +339,8 @@
                       "actions": [
                         {
                           "type": "enable",
-                          "condition": "$core.basic.kernel.software_timer"
+                          "condition": "$core.basic.kernel.software_timer",
+                          "message": "Enable software timer to configure the timer stack size."
                         }
                       ]
                     },
@@ -430,9 +416,14 @@
                             {
                               "type": "set",
                               "condition": "$core.basic.memory_management.static_memory_allocation",
-                              "computed": {
-                                "const": "true"
+                              "attributes": {
+                                "const": true
                               }
+                            },
+                            {
+                              "type": "warning",
+                              "condition": "!$core.basic.kernel.more.provide_static_memory && $core.basic.memory_management.static_memory_allocation",
+                              "message": "Provide static memory must be enabled when the 'Static memory allocation' parameter in the \"Memory Management\" panel is enabled."
                             }
                           ]
                         },
@@ -444,9 +435,14 @@
                             {
                               "type": "set",
                               "condition": "$core.basic.advanced_configuration_parameters_selector.task_statistics_and_run_time_selector.use_stats_formatting_functions",
-                              "computed": {
-                                "const": "true"
+                              "attributes": {
+                                "const": true
                               }
+                            },
+                            {
+                              "type": "warning",
+                              "condition": "!$core.basic.core.more.use_trace_facility && $core.basic.advanced_configuration_parameters_selector.task_statistics_and_run_time_selector.use_stats_formatting_functions",
+                              "message": "Trace facility must be enabled when the 'Use stats formatting functions' parameter in the \"Task Statistics and Run Time\" panel is enabled."
                             }
                           ],
                           "default": false
@@ -478,7 +474,8 @@
                         },
                         {
                           "type": "disable",
-                          "condition": "true"
+                          "condition": "true",
+                          "message": "CPU frequency is read from the clock tree and can only be modified there."
                         }
                       ]
                     },
@@ -501,7 +498,8 @@
                         },
                         {
                           "type": "disable",
-                          "condition": "true"
+                          "condition": "true",
+                          "message": "SysTick frequency is read from the clock tree and can only be modified there."
                         }
                       ]
                     },
@@ -531,6 +529,13 @@
                       "type": "integer",
                       "title": "Library maximum syscall interrupt priority",
                       "description": "The highest interrupt priority value from which FreeRTOS API functions can be safely called. Interrupts with higher priority (lower numeric value) must not call FreeRTOS API functions.",
+                      "variables": [
+                        {
+                          "on": "update-value",
+                          "name": "FREERTOS_PROJECT_MAX_SYSCALL_IT_PRIO",
+                          "computed_value": "$core.basic.system.library_max_syscall_interrupt_priority"
+                        }
+                      ],
                       "minimum": 0,
                       "maximum": 15,
                       "default": 5,
@@ -585,7 +590,7 @@
                         {
                           "type": "warning",
                           "condition": "($core.basic.memory_management.memory_management_schema != 'NOT_SELECTED') && (!$core.basic.memory_management.dynamic_memory_allocation)",
-                          "message": "Enable dynamic memory allocation in the memory management panel when a heap is selected."
+                          "message": "Enable dynamic memory allocation in the memory management panel when a heap schema is selected. Otherwise, set the memory management scheme to \"Not selected\"."
                         }
                       ]
                     },
@@ -634,10 +639,12 @@
                       "actions": [
                         {
                           "type": "disable",
-                          "condition": "($core.basic.memory_management.static_memory_allocation) && (!$core.basic.memory_management.dynamic_memory_allocation)"
+                          "condition": "!$core.basic.memory_management.dynamic_memory_allocation",
+                          "message": "Use dynamic memory allocation to configure the total heap size."
                         },
                         {
                           "type": "info",
+                          "condition": "true",
                           "message": "The value chosen by the user should take into account the application consumption of RAM otherwise it will lead to link issues."
                         }
                       ]
@@ -728,13 +735,7 @@
                           "type": "boolean",
                           "title": "xTaskGetSchedulerState",
                           "default": true,
-                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskGetSchedulerState() API function, set xTaskGetSchedulerState to 1 (Enabled) and to exclude it from your build, set xTaskGetSchedulerState to 0 (Disabled).",
-                          "actions": [
-                            {
-                              "type": "disable",
-                              "condition": "!$core.basic.kernel.software_timer"
-                            }
-                          ]
+                          "description": "It is one of the macros allowing those components of the real time kernel not utilized by your application to be excluded from your build. This ensures the RTOS does not use any more ROM or RAM than necessary for your particular embedded application. To include the xTaskGetSchedulerState() API function, set xTaskGetSchedulerState to 1 (Enabled) and to exclude it from your build, set xTaskGetSchedulerState to 0 (Disabled)."
                         },
                         "xTaskResumeFromISR": {
                           "type": "boolean",
@@ -763,7 +764,7 @@
                             {
                               "type": "warning",
                               "condition": "(!$core.basic.advanced_api_selector.more.xTaskGetCurrentTaskHandle ) && ($core.basic.kernel.stream_buffers)",
-                              "message": "Enable xTaskGetCurrentTaskHandle in the Kernel panel when using stream buffers."
+                              "message": "Enable xTaskGetCurrentTaskHandle to use stream buffers."
                             }
                           ]
                         },
@@ -801,15 +802,6 @@
                           "type": "boolean",
                           "title": "xEventGroupSetBitFromISR",
                           "default": false,
-                          "actions": [
-                            {
-                              "type": "set",
-                              "condition": "!$core.basic.advanced_api_selector.more.xTimerPendFunctionCall ",
-                              "computed": {
-                                "const": "false"
-                              }
-                            }
-                          ],
                           "description": "Set bits (flags) within an RTOS event group. A version of xEventGroupSetBits() that can be called from an interrupt service routine (ISR). Note: INCLUDE_xTimerPendFunctionCall must be set to 1 to make the xEventGroupSetBitFromISR() function available. Dependency: Must be set to 0 (Disabled) when xTimerPendFunctionCall = 0 (Disabled)."
                         },
                         "xTimerPendFunctionCall": {
@@ -819,16 +811,9 @@
                           "actions": [
                             {
                               "type": "set",
-                              "condition": "$core.basic.advanced_api_selector.more.xEventGroupSetBitFromISR ",
-                              "computed": {
-                                "const": "true"
-                              }
-                            },
-                            {
-                              "type": "set",
                               "condition": "!$core.basic.kernel.software_timer",
-                              "computed": {
-                                "const": "false"
+                              "attributes": {
+                                "const": false
                               }
                             },
                             {
@@ -961,11 +946,8 @@
                     },
                     {
                       "type": "disable",
-                      "condition": "$core.security.run_freertos_secure_only"
-                    },
-                    {
-                      "type": "disable",
-                      "condition": "true"
+                      "condition": "true",
+                      "message": "This feature is not yet supported and cannot be enabled."
                     }
                   ]
                 },
@@ -981,7 +963,8 @@
                     },
                     {
                       "type": "disable",
-                      "condition": "$core.security.trustzone"
+                      "condition": "$core.security.trustzone",
+                      "message": "Run FreeRTOS secure cannot be enabled when TrustZone support is enabled."
                     }
                   ]
                 },
@@ -1041,6 +1024,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1055,6 +1039,8 @@
                         "title": "Task stack size",
                         "description": "Set the size of the task stack specified as the number of bytes. The stack size is defined as the number of variables the stack can hold, not the number of bytes. For example, if the stack is 16 bits wide and configMINIMAL_STACK_SIZE is defined as 128, then the stack will be 256 bytes (128 x 2) wide.",
                         "default": 128,
+                        "minimum": 64,
+                        "maximum": 603648,
                         "unit": "bytes",
                         "display_format": [
                           "dec"
@@ -1068,11 +1054,18 @@
                         "display_format": [
                           "dec"
                         ],
+                        "minimum": 0,
                         "actions": [
                           {
                             "type": "warning",
                             "condition": "($item.task_priority) > ($core.basic.kernel.max_priorities) - 1",
                             "message": "The maximum of task priority must be less than or equal to 'Maximum task priorities' - 1."
+                          },
+                          {
+                            "type": "set",
+                            "computed": {
+                              "maximum": "($core.basic.kernel.max_priorities) - 1"
+                            }
                           }
                         ]
                       },
@@ -1083,6 +1076,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1097,6 +1091,8 @@
                         "title": "Parameter",
                         "description": "A value that will be passed into the task as the task's parameter. The meaning of the parameter is defined by the application writer.",
                         "default": 0,
+                        "maximum": 255,
+                        "minimum": 0,
                         "display_format": [
                           "dec"
                         ]
@@ -1133,6 +1129,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Buffer that the task being created will use as its stack. Note: this is an array of StackType_t variables. The size of StackType_t is dependent on the RTOS port.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1150,6 +1147,7 @@
                         "type": "string",
                         "title": "Control block name",
                         "description": "Structure that will hold the TCB of the task being created.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1187,6 +1185,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1228,6 +1227,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the mutex type semaphore's state.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1258,6 +1258,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1299,6 +1300,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the semaphore's state.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1336,6 +1338,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1350,6 +1353,7 @@
                         "title": "Maximum counter",
                         "description": "The maximum count value that can be reached by the semaphore. This value must be greater than zero.",
                         "default": 1,
+                        "maximum": 255,
                         "minimum": 1,
                         "display_format": [
                           "dec"
@@ -1360,6 +1364,7 @@
                         "title": "Initial counter",
                         "description": "The initial count value of the semaphore when it is created. This value must be between 0 and the maximum counter value.",
                         "default": 0,
+                        "maximum": 255,
                         "minimum": 0,
                         "display_format": [
                           "dec"
@@ -1404,6 +1409,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the semaphore's state.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1434,6 +1440,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1447,7 +1454,9 @@
                         "type": "integer",
                         "title": "Buffer size",
                         "description": "The maximum number of items the queue can hold at any one time.",
-                        "default": 16
+                        "default": 16,
+                        "minimum": 1,
+                        "maximum": 603648
                       },
                       "queue_item_size": {
                         "type": "string",
@@ -1501,6 +1510,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "If buffer size is not zero then buffer name must point to a uint8_t array that is at least large enough to hold the maximum number of items that can be in the queue at any one time.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1518,6 +1528,7 @@
                         "type": "string",
                         "title": "Control block name",
                         "description": "Must point to a variable of type StaticQueue_t, which will be used to hold the queue's data structure.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1555,6 +1566,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1596,6 +1608,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticSemaphore_t, which will be used to hold the mutex type semaphore's state.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1626,6 +1639,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1642,6 +1656,7 @@
                         "description": "The period of the timer. The period is specified in ticks, and the macro pdMS_TO_TICKS() can be used to convert a time specified in milliseconds to a time specified in ticks.",
                         "default": 0,
                         "minimum": 0,
+                        "maximum": 65535,
                         "display_format": [
                           "dec"
                         ]
@@ -1668,6 +1683,7 @@
                         "description": "An identifier that can be used by the application writer to identify the timer to which a timer callback function refers.",
                         "default": 0,
                         "minimum": 0,
+                        "maximum": 255,
                         "display_format": [
                           "dec"
                         ]
@@ -1679,6 +1695,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1720,6 +1737,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticTimer_t, which is then used to hold the timer's state.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1750,6 +1768,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1791,6 +1810,7 @@
                         "type": "string",
                         "title": "Buffer name",
                         "description": "Must point to a variable of type StaticEventGroup_t, in which the event group data structure will be stored.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1828,6 +1848,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1841,7 +1862,9 @@
                         "type": "integer",
                         "title": "Total set length",
                         "description": "The maximum number of items the queue can hold at any one time.",
-                        "default": 16
+                        "default": 16,
+                        "minimum": 0,
+                        "maximum": 603648
                       },
                       "memory_allocation": {
                         "type": "string",
@@ -1886,6 +1909,7 @@
                         "pattern": "^([a-zA-Z_][a-zA-Z0-9_]{1,31})?$",
                         "minLength": 3,
                         "maxLength": 32,
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "set",
@@ -1900,6 +1924,8 @@
                         "title": "Buffer size",
                         "description": "The total size, in bytes, of the stream buffer.",
                         "default": 256,
+                        "minimum": 0,
+                        "maximum": 603648,
                         "unit": "bytes"
                       },
                       "trigger_level": {
@@ -1907,6 +1933,8 @@
                         "title": "Trigger level",
                         "description": "The number of bytes that must be in the stream buffer before the trigger event occurs.",
                         "default": 64,
+                        "minimum": 0,
+                        "maximum": 603648,
                         "unit": "bytes"
                       },
                       "memory_allocation": {
@@ -1941,6 +1969,7 @@
                         "type": "string",
                         "title": "Buffer storage area",
                         "description": "Name of the array used to hold the data being sent to and received from the stream buffer.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -1958,6 +1987,7 @@
                         "type": "string",
                         "title": "Control block name",
                         "description": "Name of the control block used for the stream buffer.",
+                        "unique": "instance",
                         "actions": [
                           {
                             "type": "include",
@@ -2012,7 +2042,8 @@
                     },
                     {
                       "type": "disable",
-                      "condition": "true"
+                      "condition": "true",
+                      "message": "This field is detected automatically from the selected target core."
                     }
                   ],
                   "description": "Specifies the processor core used for the interface. This is typically auto-detected based on the hardware platform."
@@ -2025,7 +2056,8 @@
               "actions": [
                 {
                   "type": "enable",
-                  "condition": "$core.basic.kernel.tickless_mode"
+                  "condition": "$core.basic.kernel.tickless_mode",
+                  "message": "Enable tickless mode feature to configure this section."
                 }
               ],
               "properties": {

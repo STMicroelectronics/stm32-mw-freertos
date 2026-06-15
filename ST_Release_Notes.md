@@ -20,6 +20,52 @@ This MW is full-featured and highly configurable via configuration flags. **Free
 More documentation is available at [FreeRTOS SW Pack online documentation](https://dev.st.com/stm32cube-docs/mw-freertos/latest/en/index.html).
 
 # Update History
+<label for="collapse-section-2.1.0" aria-hidden="true">__2.1.0 / 05-June-2026__</label>
+<div>
+
+## Main changes
+
+Release of FreeRTOS SW Pack update: 
+
+- Bug fixing 
+- Miscellaneous update of .config files.
+
+This pack is based on FreeRTOS-Kernel [V11.2.0 version](https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.2.0)
+
+
+## Contents
+
+- FreeRTOS real time kernel and micorocontrollers and/or compiler specific files
+
+
+## Known Limitations
+
+- MPU feature with FreeRTOS is not yet supported.
+
+
+## Development toolchains and compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+- STM32CubeMX2 V1.0.1
+
+
+## Supported devices and boards
+
+- STM32C5 series
+
+
+## Backward compatibility
+- None
+
+
+## Dependencies
+
+- STM32C5xx HAL Drivers V2.0.0
+
+</div>
+
 
 <label for="collapse-section-2.0.0" aria-hidden="true">__2.0.0 / 13-March-2026__</label>
 <div>
@@ -61,14 +107,17 @@ This pack is based on FreeRTOS-Kernel [V11.2.0 version](https://github.com/FreeR
 ## Dependencies
 
 - STM32C5xx HAL Drivers V2.0.0
+
+
 </div>
+
+
 
 
 
 
 For complete documentation on STM32 Microcontrollers </mark> ,
 visit: http://www.st.com/stm32
-
 
 This release note uses up to date web standards and, for this reason, should not
 be opened with Internet Explorer but preferably with popular browsers such as

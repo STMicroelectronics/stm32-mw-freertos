@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -136,7 +136,7 @@
  *
  * Defining configTICK_TYPE_WIDTH_IN_BITS as TICK_TYPE_WIDTH_64_BITS causes
  * TickType_t to be defined (typedef'ed) as an unsigned 64-bit type. */
-#define configTICK_TYPE_WIDTH_IN_BITS              TICK_TYPE_WIDTH_64_BITS
+#define configTICK_TYPE_WIDTH_IN_BITS              TICK_TYPE_WIDTH_32_BITS
 
 /* Set configIDLE_SHOULD_YIELD to 1 to have the Idle task yield to an
  * application task if there is an Idle priority (priority 0) application task
@@ -415,6 +415,8 @@
  * number of the failing assert (for example, "vAssertCalled( __FILE__, __LINE__
  * )" or it can simple disable interrupts and sit in a loop to halt all
  * execution on the failing line for viewing in a debugger. */
+
+/* *INDENT-OFF* */
 #define configASSERT( x )         \
     if( ( x ) == 0 )              \
     {                             \
@@ -422,6 +424,7 @@
         for( ; ; )                \
         ;                         \
     }
+/* *INDENT-ON* */
 
 /******************************************************************************/
 /* FreeRTOS MPU specific definitions. *****************************************/
@@ -555,6 +558,13 @@
  * tskNO_AFFINITY if left undefined. */
 #define configTIMER_SERVICE_TASK_CORE_AFFINITY    tskNO_AFFINITY
 
+/* When using SMP (i.e. configNUMBER_OF_CORES is greater than one), set
+ * configIDLE_AFFINITY to 1 to pin each Idle task to its corresponding
+ * core. When set to 1, Idle task N will only run on core N, using an affinity
+ * mask of (1 << N).  Set to 0 to allow the scheduler to run Idle tasks on any
+ * available core.  Defaults to 0 if left undefined. */
+#define configIDLE_AFFINITY                       0
+
 /******************************************************************************/
 /* ARMv8-M secure side port related definitions. ******************************/
 /******************************************************************************/
@@ -567,7 +577,7 @@
 /* Defines the kernel provided implementation of
  * vApplicationGetIdleTaskMemory() and vApplicationGetTimerTaskMemory()
  * to provide the memory that is used by the Idle task and Timer task
- * respectively. The application can provide it's own implementation of
+ * respectively. The application can provide its own implementation of
  * vApplicationGetIdleTaskMemory() and vApplicationGetTimerTaskMemory() by
  * setting configKERNEL_PROVIDED_STATIC_MEMORY to 0 or leaving it undefined. */
 #define configKERNEL_PROVIDED_STATIC_MEMORY    1
@@ -599,10 +609,10 @@
 
 /* Set configENABLE_MVE to 1 to enable the M-Profile Vector Extension (MVE)
  * support, or 0 to leave the MVE support disabled. This option is only
- * applicable to Cortex-M55 and Cortex-M85 ports as M-Profile Vector Extension
- * (MVE) is available only on these architectures. configENABLE_MVE must be left
- * undefined, or defined to 0 for the Cortex-M23,Cortex-M33 and Cortex-M35P
- * ports. */
+ * applicable to Cortex-M52, Cortex-M55, Cortex-M85 and STAR-MC3 ports as
+ * M-Profile Vector Extension (MVE) is available only on these architectures.
+ * configENABLE_MVE must be left undefined, or defined to 0 for the
+ * Cortex-M23,Cortex-M33 and Cortex-M35P ports. */
 #define configENABLE_MVE                  1
 
 /******************************************************************************/
@@ -650,7 +660,7 @@
 #define INCLUDE_uxTaskPriorityGet              1
 #define INCLUDE_vTaskDelete                    1
 #define INCLUDE_vTaskSuspend                   1
-#define INCLUDE_vTaskDelayUntil                1
+#define INCLUDE_xTaskDelayUntil                1
 #define INCLUDE_vTaskDelay                     1
 #define INCLUDE_xTaskGetSchedulerState         1
 #define INCLUDE_xTaskGetCurrentTaskHandle      1

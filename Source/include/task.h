@@ -1,6 +1,7 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
  *
  * SPDX-License-Identifier: MIT
  *
@@ -53,10 +54,10 @@
  * The tskKERNEL_VERSION_MAJOR, tskKERNEL_VERSION_MINOR, tskKERNEL_VERSION_BUILD
  * values will reflect the last released version number.
  */
-#define tskKERNEL_VERSION_NUMBER                      "V11.2.0"
+#define tskKERNEL_VERSION_NUMBER                      "V11.3.1"
 #define tskKERNEL_VERSION_MAJOR                       11
-#define tskKERNEL_VERSION_MINOR                       2
-#define tskKERNEL_VERSION_BUILD                       0
+#define tskKERNEL_VERSION_MINOR                       3
+#define tskKERNEL_VERSION_BUILD                       1
 
 /* MPU region parameters passed in ulParameters
  * of MemoryRegion_t struct. */
@@ -68,24 +69,27 @@
 #if defined( portARMV8M_MINOR_VERSION ) && ( portARMV8M_MINOR_VERSION >= 1 )
     #define tskMPU_REGION_PRIVILEGED_EXECUTE_NEVER    ( 1U << 5U )
 #endif /* portARMV8M_MINOR_VERSION >= 1 */
+#define tskMPU_REGION_NON_SHAREABLE                   ( 1U << 6U )
+#define tskMPU_REGION_OUTER_SHAREABLE                 ( 1U << 7U )
+#define tskMPU_REGION_INNER_SHAREABLE                 ( 1U << 8U )
 
 /* MPU region permissions stored in MPU settings to
  * authorize access requests. */
-#define tskMPU_READ_PERMISSION        ( 1U << 0U )
-#define tskMPU_WRITE_PERMISSION       ( 1U << 1U )
+#define tskMPU_READ_PERMISSION                        ( 1U << 0U )
+#define tskMPU_WRITE_PERMISSION                       ( 1U << 1U )
 
 /* The direct to task notification feature used to have only a single notification
  * per task.  Now there is an array of notifications per task that is dimensioned by
  * configTASK_NOTIFICATION_ARRAY_ENTRIES.  For backward compatibility, any use of the
  * original direct to task notification defaults to using the first index in the
  * array. */
-#define tskDEFAULT_INDEX_TO_NOTIFY    ( 0 )
+#define tskDEFAULT_INDEX_TO_NOTIFY                    ( 0 )
 
 /**
  * task. h
  *
  * Type by which tasks are referenced.  For example, a call to xTaskCreate
- * returns (via a pointer parameter) an TaskHandle_t variable that can then
+ * returns (via a pointer parameter) a TaskHandle_t variable that can then
  * be used as a parameter to vTaskDelete to delete the task.
  *
  * \defgroup TaskHandle_t TaskHandle_t
@@ -179,6 +183,13 @@ typedef struct xTASK_STATUS
         UBaseType_t uxCoreAffinityMask;           /* The core affinity mask for the task */
     #endif
 } TaskStatus_t;
+
+/* Callback type used by uxTaskCallForEachTask(). The callback receives one
+ * task handle and state at a time, plus an opaque caller-supplied context
+ * pointer. The callback may call vTaskGetInfo() if it needs a TaskStatus_t. */
+typedef void (* TaskStatusCallbackFunction_t)( TaskHandle_t xTask,
+                                               eTaskState eState,
+                                               void * pvCallbackContext );
 
 /* Possible return values for eTaskConfirmSleepModeStatus(). */
 typedef enum
@@ -544,6 +555,14 @@ typedef enum
  * The function parameters define the memory regions and associated access
  * permissions allocated to the task.
  *
+ * The parameter macros used in MemoryRegion_t.ulParameters are port specific.
+ * Some ports, including the Cortex-M3/4 MPU ports, use the portMPU_REGION_*
+ * values shown below.
+ * ARMv8-M MPU ports, such as CM23, CM33, CM52, CM55, CM85 and STAR_MC3, use
+ * the tskMPU_REGION_* values defined in this header; the port translates them
+ * into MPU register settings. Check the selected port's headers before selecting
+ * the region parameter macros.
+ *
  * See xTaskCreateRestrictedStatic() for a version that does not use any
  * dynamic memory allocation.
  *
@@ -560,7 +579,7 @@ typedef enum
  *
  * Example usage:
  * @code{c}
- * // Create an TaskParameters_t structure that defines the task to be created.
+ * // Create a TaskParameters_t structure that defines the task to be created.
  * static const TaskParameters_t xCheckTaskParameters =
  * {
  *  vATask,     // pvTaskCode - the function that implements the task.
@@ -602,12 +621,12 @@ typedef enum
  * \defgroup xTaskCreateRestricted xTaskCreateRestricted
  * \ingroup Tasks
  */
-#if ( portUSING_MPU_WRAPPERS == 1 )
+#if ( ( portUSING_MPU_WRAPPERS == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) )
     BaseType_t xTaskCreateRestricted( const TaskParameters_t * const pxTaskDefinition,
                                       TaskHandle_t * pxCreatedTask ) PRIVILEGED_FUNCTION;
 #endif
 
-#if ( ( portUSING_MPU_WRAPPERS == 1 ) && ( configNUMBER_OF_CORES > 1 ) && ( configUSE_CORE_AFFINITY == 1 ) )
+#if ( ( portUSING_MPU_WRAPPERS == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) && ( configNUMBER_OF_CORES > 1 ) && ( configUSE_CORE_AFFINITY == 1 ) )
     BaseType_t xTaskCreateRestrictedAffinitySet( const TaskParameters_t * const pxTaskDefinition,
                                                  UBaseType_t uxCoreAffinityMask,
                                                  TaskHandle_t * pxCreatedTask ) PRIVILEGED_FUNCTION;
@@ -635,6 +654,14 @@ typedef enum
  * xTaskCreateRestrictedStatic() therefore allows a memory protected task to be
  * created without using any dynamic memory allocation.
  *
+ * The parameter macros used in MemoryRegion_t.ulParameters are port specific.
+ * Some ports, including the Cortex-M3/4 MPU ports, use the portMPU_REGION_*
+ * values shown below.
+ * ARMv8-M MPU ports, such as CM23, CM33, CM52, CM55, CM85 and STAR_MC3, use
+ * the tskMPU_REGION_* values defined in this header; the port translates them
+ * into MPU register settings. Check the selected port's headers before selecting
+ * the region parameter macros.
+ *
  * @param pxTaskDefinition Pointer to a structure that contains a member
  * for each of the normal xTaskCreate() parameters (see the xTaskCreate() API
  * documentation) plus an optional stack buffer and the memory region
@@ -650,7 +677,7 @@ typedef enum
  *
  * Example usage:
  * @code{c}
- * // Create an TaskParameters_t structure that defines the task to be created.
+ * // Create a TaskParameters_t structure that defines the task to be created.
  * // The StaticTask_t variable is only included in the structure when
  * // configSUPPORT_STATIC_ALLOCATION is set to 1.  The PRIVILEGED_DATA macro can
  * // be used to force the variable into the RTOS kernel's privileged data area.
@@ -723,6 +750,14 @@ typedef enum
  *
  * @param[in] pxRegions A pointer to a MemoryRegion_t structure that contains the
  * new memory region definitions.
+ *
+ * The parameter macros used in MemoryRegion_t.ulParameters are port specific.
+ * Some ports, including the Cortex-M3/4 MPU ports, use the portMPU_REGION_*
+ * values shown below.
+ * ARMv8-M MPU ports, such as CM23, CM33, CM52, CM55, CM85 and STAR_MC3, use
+ * the tskMPU_REGION_* values defined in this header; the port translates them
+ * into MPU register settings. Check the selected port's headers before selecting
+ * the region parameter macros.
  *
  * Example usage:
  * @code{c}
@@ -861,6 +896,43 @@ void vTaskDelay( const TickType_t xTicksToDelay ) PRIVILEGED_FUNCTION;
 /**
  * task. h
  * @code{c}
+ * TickType_t xTaskPeriodicDelay( TickType_t *pxPreviousWakeTime, const TickType_t xTimeIncrement );
+ * @endcode
+ *
+ * INCLUDE_xTaskDelayUntil must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
+ *
+ * Periodic task delay to ensure a constant execution frequency.
+ *
+ * This function is similar to xTaskDelayUntil () with a few important differences:
+ * - pxPreviousWakeTime contains the last past wake time, so it never runs away
+ * - if you suspend the task, when you resume it pxPreviousWakeTime will instantly
+ *   catch up all skipped increments
+ * - it returns the number of increments added to pxPreviosWakeTime
+ *
+ * @param pxPreviousWakeTime Pointer to a variable that holds the time at which the
+ * task was last unblocked.  The variable must be initialised with the current time
+ * prior to its first use.  Following this the variable is automatically updated.
+ *
+ * @param xTimeIncrement The cycle time period.  The task will be unblocked at
+ * time *pxPreviousWakeTime + xTimeIncrement.  Passing the same xTimeIncrement
+ * parameter value will cause the task to execute with a fixed interval.
+ *
+ * @return Number of times xTimeIncrement has been added to pxPreviousWakeTime.
+ * It is 0 on the first call or if not enough ticks have been elapsed since the
+ * last call, 1 in normal circumstances or more than 1 if some period has been
+ * skipped for some reason (e.g. when the caller task is suspended for more than
+ * xTimeIncrement ticks).
+ *
+ * \defgroup xTaskPeriodicDelay xTaskPeriodicDelay
+ * \ingroup TaskCtrl
+ */
+TickType_t xTaskPeriodicDelay( TickType_t * const pxPreviousWakeTime,
+                               const TickType_t xTimeIncrement ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
+ * @code{c}
  * BaseType_t xTaskDelayUntil( TickType_t *pxPreviousWakeTime, const TickType_t xTimeIncrement );
  * @endcode
  *
@@ -897,7 +969,8 @@ void vTaskDelay( const TickType_t xTicksToDelay ) PRIVILEGED_FUNCTION;
  *
  * @return Value which can be used to check whether the task was actually delayed.
  * Will be pdTRUE if the task way delayed and pdFALSE otherwise.  A task will not
- * be delayed if the next expected wake time is in the past.
+ * be delayed if the next expected wake time is in the past. This prevents periodic
+ * tasks from accumulating delays and allows them to resume their regular timing pattern.
  *
  * Example usage:
  * @code{c}
@@ -1002,7 +1075,7 @@ BaseType_t xTaskDelayUntil( TickType_t * const pxPreviousWakeTime,
  *   // it itself.
  *   if( uxTaskPriorityGet( xHandle ) != tskIDLE_PRIORITY )
  *   {
- *       // The task has changed it's priority.
+ *       // The task has changed its priority.
  *   }
  *
  *   // ...
@@ -1045,7 +1118,7 @@ UBaseType_t uxTaskPriorityGetFromISR( const TaskHandle_t xTask ) PRIVILEGED_FUNC
  *
  * @return The base priority of xTask.
  *
- * \defgroup uxTaskPriorityGet uxTaskBasePriorityGet
+ * \defgroup uxTaskBasePriorityGet uxTaskBasePriorityGet
  * \ingroup TaskCtrl
  */
 UBaseType_t uxTaskBasePriorityGet( const TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
@@ -2084,7 +2157,7 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION;
  * configUSE_TRACE_FACILITY must be defined as 1 in FreeRTOSConfig.h for
  * uxTaskGetSystemState() to be available.
  *
- * uxTaskGetSystemState() populates an TaskStatus_t structure for each task in
+ * uxTaskGetSystemState() populates a TaskStatus_t structure for each task in
  * the system.  TaskStatus_t structures contain, among other things, members
  * for the task handle, task name, task priority, task state, and total amount
  * of run time consumed by the task.  See the TaskStatus_t structure
@@ -2181,7 +2254,38 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION;
     UBaseType_t uxTaskGetSystemState( TaskStatus_t * const pxTaskStatusArray,
                                       const UBaseType_t uxArraySize,
                                       configRUN_TIME_COUNTER_TYPE * const pulTotalRunTime ) PRIVILEGED_FUNCTION;
-#endif
+
+
+/**
+ * For each task, call pxCallbackFunction with the task's handle and state,
+ * and the provided context.
+ *
+ * NOTE: This function is intended for debugging use only as it suspends
+ * the scheduler for an extended period. The callback runs while the
+ * scheduler is suspended, so it must return quickly and must not perform
+ * blocking operations.
+ *
+ * NOTE: This API is privileged-only (it invokes a user callback from
+ * privileged context).
+ *
+ * @param pxCallbackFunction Callback to invoke once for each task (passing
+ * the task's handle, state, and the pvCallbackContext).
+ *
+ * @param pvCallbackContext Opaque caller-provided context passed through to
+ * each callback invocation.
+ *
+ * @param pulTotalRunTime If configGENERATE_RUN_TIME_STATS is set to 1 in
+ * FreeRTOSConfig.h then *pulTotalRunTime is set to the total run time since
+ * boot. pulTotalRunTime can be set to NULL to omit the total run time
+ * information.
+ *
+ * @return The number tasks provided to the callback.
+ */
+    UBaseType_t uxTaskCallForEachTask( TaskStatusCallbackFunction_t pxCallbackFunction,
+                                       void * pvCallbackContext,
+                                       configRUN_TIME_COUNTER_TYPE * const pulTotalRunTime ) PRIVILEGED_FUNCTION;
+
+#endif /* if ( configUSE_TRACE_FACILITY == 1 ) */
 
 /**
  * task. h
@@ -2612,9 +2716,8 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION;
  * notification value at that index being updated.  ulValue is not used and
  * xTaskNotifyIndexed() always returns pdPASS in this case.
  *
- * pulPreviousNotificationValue -
- * Can be used to pass out the subject task's notification value before any
- * bits are modified by the notify function.
+ * @param pulPreviousNotificationValue Can be used to pass out the subject
+ * task's notification value before any bits are modified by the notify function.
  *
  * @return Dependent on the value of eAction.  See the description of the
  * eAction parameter.
@@ -2758,6 +2861,9 @@ BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify,
  * The task receives a notification without its notification value being
  * updated.  ulValue is not used and xTaskNotify() always returns pdPASS in
  * this case.
+ *
+ * @param pulPreviousNotificationValue Can be used to pass out the subject
+ * task's notification value before any bits are modified by the notify function.
  *
  * @param pxHigherPriorityTaskWoken  xTaskNotifyFromISR() will set
  * *pxHigherPriorityTaskWoken to pdTRUE if sending the notification caused the
@@ -3201,7 +3307,7 @@ uint32_t ulTaskGenericNotifyTake( UBaseType_t uxIndexToWaitOn,
 /**
  * task. h
  * @code{c}
- * BaseType_t xTaskNotifyStateClearIndexed( TaskHandle_t xTask, UBaseType_t uxIndexToCLear );
+ * BaseType_t xTaskNotifyStateClearIndexed( TaskHandle_t xTask, UBaseType_t uxIndexToClear );
  *
  * BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );
  * @endcode

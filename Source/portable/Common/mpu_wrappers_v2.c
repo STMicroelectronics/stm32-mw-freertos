@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -1059,8 +1059,8 @@
                                                   configRUN_TIME_COUNTER_TYPE * pulTotalRunTime ) /* PRIVILEGED_FUNCTION */
         {
             UBaseType_t uxReturn = 0;
-            UBaseType_t xIsTaskStatusArrayWriteable = pdFALSE;
-            UBaseType_t xIsTotalRunTimeWriteable = pdFALSE;
+            BaseType_t xIsTaskStatusArrayWriteable = pdFALSE;
+            BaseType_t xIsTotalRunTimeWriteable = pdFALSE;
             uint32_t ulArraySize = ( uint32_t ) uxArraySize;
             uint32_t ulTaskStatusSize = ( uint32_t ) sizeof( TaskStatus_t );
 
@@ -3890,6 +3890,40 @@
     #endif /* if ( configUSE_TIMERS == 1 ) */
 /*-----------------------------------------------------------*/
 
+    #if ( configUSE_TIMERS == 1 )
+
+        BaseType_t MPU_xTimerDelete( TimerHandle_t xTimer, TickType_t xTicksToWait ) /* PRIVILEGED_FUNCTION */
+        {
+            BaseType_t xReturn = pdFALSE;
+            TimerHandle_t xInternalTimerHandle = NULL;
+            int32_t lIndex;
+
+            lIndex = ( int32_t ) xTimer;
+
+            if( IS_EXTERNAL_INDEX_VALID( lIndex ) != pdFALSE )
+            {
+                xInternalTimerHandle = MPU_GetTimerHandleAtIndex( CONVERT_TO_INTERNAL_INDEX( lIndex ) );
+
+                if( xInternalTimerHandle != NULL )
+                {
+                    xReturn = xTimerGenericCommandFromTask( xInternalTimerHandle,
+                                                            tmrCOMMAND_DELETE,
+                                                            0U, /* xOptionalValue */
+                                                            NULL, /* pxHigherPriorityTaskWoken */
+                                                            xTicksToWait );
+                    if( xReturn != pdFALSE )
+                    {
+                        MPU_SetIndexFreeInKernelObjectPool( CONVERT_TO_INTERNAL_INDEX( lIndex ) );
+                    }
+                }
+            }
+
+            return xReturn;
+        }
+
+    #endif /* if ( configUSE_TIMERS == 1 ) */
+/*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 /*           MPU wrappers for event group APIs.              */
 /*-----------------------------------------------------------*/
@@ -4282,7 +4316,7 @@
     #endif /* #if ( ( configSUPPORT_STATIC_ALLOCATION == 1 ) && ( configUSE_EVENT_GROUPS == 1 ) ) */
 /*-----------------------------------------------------------*/
 
-    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
+    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
 
         BaseType_t MPU_xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup,
                                                     const EventBits_t uxBitsToClear ) /* PRIVILEGED_FUNCTION */
@@ -4306,10 +4340,10 @@
             return xReturn;
         }
 
-    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) ) */
+    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) ) */
 /*-----------------------------------------------------------*/
 
-    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
+    #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
 
         BaseType_t MPU_xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup,
                                                   const EventBits_t uxBitsToSet,
@@ -4334,7 +4368,7 @@
             return xReturn;
         }
 
-    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) ) */
+    #endif /* #if ( ( configUSE_EVENT_GROUPS == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) ) */
 /*-----------------------------------------------------------*/
 
     #if ( configUSE_EVENT_GROUPS == 1 )

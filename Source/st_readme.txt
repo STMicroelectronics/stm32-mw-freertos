@@ -31,6 +31,16 @@
   @endverbatim
 
 =======
+### 16-October-2026 ###
+=========================
++ FreeRTOS: Update to FreeRTOS v11.3.1
+
++ Add folder ARMClang
+
++ CMSIS_RTOS_V2 update against the latest CMSIS-FreeRTOS v11.3.1 release
+    - CMSIS_RTOS_V2/cmsis_os2.c
+    - CMSIS_RTOS_V2/freertos_os2.h
+
 ### 27-March-2026 ###
 =========================
   + Add SW_Security_Level.md file

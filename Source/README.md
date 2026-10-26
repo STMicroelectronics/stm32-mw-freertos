@@ -1,5 +1,5 @@
 [![CMock Unit Tests](https://github.com/FreeRTOS/FreeRTOS-Kernel/actions/workflows/unit-tests.yml/badge.svg?branch=main&event=push)](https://github.com/FreeRTOS/FreeRTOS-Kernel/actions/workflows/unit-tests.yml?query=branch%3Amain+event%3Apush+workflow%3A%22CMock+Unit+Tests%22++)
-[![codecov](https://codecov.io/gh/FreeRTOS/FreeRTOS-Kernel/badge.svg?branch=main)](https://codecov.io/gh/FreeRTOS/FreeRTOS-Kernel)
+[![codecov](https://app.codecov.io/gh/FreeRTOS/FreeRTOS-Kernel/badge.svg?branch=main)](https://codecov.io/gh/FreeRTOS/FreeRTOS-Kernel)
 
 ## Getting started
 
@@ -130,7 +130,7 @@ See the readme file in the ```./portable``` directory for more information.
 
 - The ```./include``` directory contains the real time kernel header files.
 
-- The ```./template_configuration``` directory contains a sample `FreeRTOSConfig.h` to help jumpstart a new project.
+- The ```./examples/template_configuration``` directory contains a sample `FreeRTOSConfig.h` to help jumpstart a new project.
 See the [FreeRTOSConfig.h](examples/template_configuration/FreeRTOSConfig.h) file for instructions.
 
 ### Code Formatting

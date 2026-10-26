@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * Copyright (c) 2013-2024 Arm Limited. All rights reserved.
+ * Copyright 2013-2026 Arm Limited and/or its affiliates.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -84,8 +84,8 @@
 #define EVENT_FLAGS_INVALID_BITS  (~((1UL << MAX_BITS_EVENT_GROUPS) - 1U))
 
 /* Kernel version and identification string definition (major.minor.rev: mmnnnrrrr dec) */
-#define KERNEL_VERSION            (((uint32_t)tskKERNEL_VERSION_MAJOR * 10000000UL) | \
-                                   ((uint32_t)tskKERNEL_VERSION_MINOR *    10000UL) | \
+#define KERNEL_VERSION            (((uint32_t)tskKERNEL_VERSION_MAJOR * 10000000UL) + \
+                                   ((uint32_t)tskKERNEL_VERSION_MINOR *    10000UL) + \
                                    ((uint32_t)tskKERNEL_VERSION_BUILD *        1UL))
 
 #define KERNEL_ID                 ("FreeRTOS " tskKERNEL_VERSION_NUMBER)
@@ -127,7 +127,7 @@ static uint32_t OS_Tick_GetInterval (void);
     HeapRegion_t array.
   */
   #define HEAP_5_REGION_SETUP   1
-
+  
   #ifndef configHEAP_5_REGIONS
     #define configHEAP_5_REGIONS xHeapRegions
 
@@ -175,7 +175,6 @@ void SysTick_Handler (void) {
 }
 #endif
 #endif /* SysTick */
-
 
 /*
   Determine if CPU executes from interrupt context or if interrupts are masked.
@@ -580,9 +579,9 @@ osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAtt
     mem  = -1;
 
     if (attr != NULL) {
-      if (attr->name != NULL) {
-        name = attr->name;
-      }
+      /* Take the name from attributes */
+      name = attr->name;
+
       if (attr->priority != osPriorityNone) {
         prio = (UBaseType_t)attr->priority;
       }
@@ -590,6 +589,11 @@ osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAtt
       if ((prio < osPriorityIdle) || (prio > osPriorityISR) || ((attr->attr_bits & osThreadJoinable) == osThreadJoinable)) {
         /* Invalid priority or unsupported osThreadJoinable attribute used */
         return (NULL);
+      }
+
+      if ((attr->attr_bits & osThreadPrivileged) == osThreadPrivileged) {
+        /* Set privilege bit to create a privileged task */
+        prio |= portPRIVILEGE_BIT;
       }
 
       if (attr->stack_size > 0U) {
@@ -883,9 +887,10 @@ __NO_RETURN void osThreadExit (void) {
   Terminate execution of a thread.
 */
 osStatus_t osThreadTerminate (osThreadId_t thread_id) {
-  TaskHandle_t hTask = (TaskHandle_t)thread_id;
   osStatus_t stat;
+
 #ifndef USE_FreeRTOS_HEAP_1
+  TaskHandle_t hTask = (TaskHandle_t)thread_id;
   eTaskState tstate;
 
   if (IRQ_Context() != 0U) {
@@ -905,6 +910,7 @@ osStatus_t osThreadTerminate (osThreadId_t thread_id) {
     }
   }
 #else
+  (void)thread_id;
   stat = osError;
 #endif
 
@@ -1048,8 +1054,7 @@ uint32_t osThreadFlagsSet (osThreadId_t thread_id, uint32_t flags) {
   Clear the specified Thread Flags of current running thread.
 */
 uint32_t osThreadFlagsClear (uint32_t flags) {
-  TaskHandle_t hTask;
-  uint32_t rflags, cflags;
+  uint32_t rflags;
 
   if (IRQ_Context() != 0U) {
     rflags = (uint32_t)osErrorISR;
@@ -1058,19 +1063,7 @@ uint32_t osThreadFlagsClear (uint32_t flags) {
     rflags = (uint32_t)osErrorParameter;
   }
   else {
-    hTask = xTaskGetCurrentTaskHandle();
-
-    if (xTaskNotifyAndQuery (hTask, 0, eNoAction, &cflags) == pdPASS) {
-      rflags = cflags;
-      cflags &= ~flags;
-
-      if (xTaskNotify (hTask, cflags, eSetValueWithOverwrite) != pdPASS) {
-        rflags = (uint32_t)osError;
-      }
-    }
-    else {
-      rflags = (uint32_t)osError;
-    }
+    rflags = ulTaskNotifyValueClear(NULL, flags);
   }
 
   /* Return flags before clearing */
@@ -1326,9 +1319,8 @@ osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, 
       name = NULL;
 
       if (attr != NULL) {
-        if (attr->name != NULL) {
-          name = attr->name;
-        }
+        /* Take the name from attributes */
+        name = attr->name;
 
         if ((attr->cb_mem != NULL) && (attr->cb_size >= sizeof(StaticTimer_t))) {
           /* The memory for control block is provided, use static object */
@@ -1477,12 +1469,13 @@ uint32_t osTimerIsRunning (osTimerId_t timer_id) {
   Delete a timer.
 */
 osStatus_t osTimerDelete (osTimerId_t timer_id) {
-  TimerHandle_t hTimer = (TimerHandle_t)timer_id;
   osStatus_t stat;
+
 #ifndef USE_FreeRTOS_HEAP_1
-#if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
+  TimerHandle_t hTimer = (TimerHandle_t)timer_id;
+  #if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
   TimerCallback_t *callb;
-#endif
+  #endif
 
   if (IRQ_Context() != 0U) {
     stat = osErrorISR;
@@ -1511,6 +1504,7 @@ osStatus_t osTimerDelete (osTimerId_t timer_id) {
     }
   }
 #else
+  (void)timer_id;
   stat = osError;
 #endif
 
@@ -1742,10 +1736,11 @@ uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t opti
   Delete an Event Flags object.
 */
 osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id) {
-  EventGroupHandle_t hEventGroup = (EventGroupHandle_t)ef_id;
   osStatus_t stat;
 
 #ifndef USE_FreeRTOS_HEAP_1
+  EventGroupHandle_t hEventGroup = (EventGroupHandle_t)ef_id;
+
   if (IRQ_Context() != 0U) {
     stat = osErrorISR;
   }
@@ -1757,6 +1752,7 @@ osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id) {
     vEventGroupDelete (hEventGroup);
   }
 #else
+  (void)ef_id;
   stat = osError;
 #endif
 
@@ -1973,6 +1969,7 @@ osThreadId_t osMutexGetOwner (osMutexId_t mutex_id) {
 */
 osStatus_t osMutexDelete (osMutexId_t mutex_id) {
   osStatus_t stat;
+
 #ifndef USE_FreeRTOS_HEAP_1
   SemaphoreHandle_t hMutex;
 
@@ -1992,6 +1989,7 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id) {
     vSemaphoreDelete (hMutex);
   }
 #else
+  (void)mutex_id;
   stat = osError;
 #endif
 
@@ -2176,10 +2174,11 @@ uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id) {
   Delete a Semaphore object.
 */
 osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id) {
-  SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)semaphore_id;
   osStatus_t stat;
 
 #ifndef USE_FreeRTOS_HEAP_1
+  SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)semaphore_id;
+
   if (IRQ_Context() != 0U) {
     stat = osErrorISR;
   }
@@ -2195,6 +2194,7 @@ osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id) {
     vSemaphoreDelete (hSemaphore);
   }
 #else
+  (void)semaphore_id;
   stat = osError;
 #endif
 
@@ -2432,7 +2432,7 @@ uint32_t osMessageQueueGetSpace (osMessageQueueId_t mq_id) {
   else if (IRQ_Context() != 0U) {
     isrm = taskENTER_CRITICAL_FROM_ISR();
 
-    space = uxQueueGetQueueLength (hQueue) - uxQueueMessagesWaiting (hQueue);
+    space = uxQueueGetQueueLength (hQueue) - uxQueueMessagesWaitingFromISR (hQueue);
 
     taskEXIT_CRITICAL_FROM_ISR(isrm);
   }
@@ -2470,10 +2470,11 @@ osStatus_t osMessageQueueReset (osMessageQueueId_t mq_id) {
   Delete a Message Queue object.
 */
 osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id) {
-  QueueHandle_t hQueue = (QueueHandle_t)mq_id;
   osStatus_t stat;
 
 #ifndef USE_FreeRTOS_HEAP_1
+  QueueHandle_t hQueue = (QueueHandle_t)mq_id;
+
   if (IRQ_Context() != 0U) {
     stat = osErrorISR;
   }
@@ -2489,6 +2490,7 @@ osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id) {
     vQueueDelete (hQueue);
   }
 #else
+  (void)mq_id;
   stat = osError;
 #endif
 
@@ -2529,9 +2531,8 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
     mem_mp = -1;
 
     if (attr != NULL) {
-      if (attr->name != NULL) {
-        name = attr->name;
-      }
+      /* Take the name from attributes */
+      name = attr->name;
 
       if ((attr->cb_mem != NULL) && (attr->cb_size >= sizeof(MemPool_t))) {
         /* Static control block is provided */
@@ -2568,10 +2569,14 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
     if (mem_cb == 0) {
       mp = pvPortMalloc (sizeof(MemPool_t));
     } else {
-      mp = attr->cb_mem;
+      if(mem_cb == 1) {
+        mp = attr->cb_mem;
+      }
     }
 
     if (mp != NULL) {
+      mp->mem_arr = NULL;
+
       /* Create a semaphore (max count == initial count == block_count) */
       #if (configSUPPORT_STATIC_ALLOCATION == 1)
         mp->sem = xSemaphoreCreateCountingStatic (block_count, block_count, &mp->mem_sem);
@@ -2586,7 +2591,9 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
         if (mem_mp == 0) {
           mp->mem_arr = pvPortMalloc (sz);
         } else {
-          mp->mem_arr = attr->mp_mem;
+          if(mem_mp == 1) {
+            mp->mem_arr = attr->mp_mem;
+          }
         }
       }
     }

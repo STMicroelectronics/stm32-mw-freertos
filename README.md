@@ -1,6 +1,6 @@
 # Middleware FreeRTOS MCU Component
 
-![tag](https://img.shields.io/badge/tag-v11.2.0_20260327-brightgreen.svg)
+![tag](https://img.shields.io/badge/tag-v11.3.1_20261016-brightgreen.svg)
 
 ## Overview
 

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -99,6 +99,16 @@
     #define configASSERT_DEFINED    0
 #else
     #define configASSERT_DEFINED    1
+#endif
+
+/* Set configENABLE_PAC and/or configENABLE_BTI to 1 to enable PAC and/or BTI
+ * support and 0 to disable them. These are currently used in ARMv8.1-M ports. */
+#ifndef configENABLE_PAC
+    #define configENABLE_PAC    0
+#endif
+
+#ifndef configENABLE_BTI
+    #define configENABLE_BTI    0
 #endif
 
 /* Basic FreeRTOS definitions. */
@@ -365,6 +375,10 @@
 
 #ifndef configIDLE_SHOULD_YIELD
     #define configIDLE_SHOULD_YIELD    1
+#endif
+
+#ifndef configIDLE_AFFINITY
+    #define configIDLE_AFFINITY    0
 #endif
 
 #if configMAX_TASK_NAME_LEN < 1
@@ -1756,6 +1770,14 @@
     #define traceRETURN_vTaskDelete()
 #endif
 
+#ifndef traceENTER_xTaskPeriodicDelay
+    #define traceENTER_xTaskPeriodicDelay( pxPreviousWakeTime, xTimeIncrement )
+#endif
+
+#ifndef traceRETURN_xTaskPeriodicDelay
+    #define traceRETURN_xTaskPeriodicDelay( xIncrements )
+#endif
+
 #ifndef traceENTER_xTaskDelayUntil
     #define traceENTER_xTaskDelayUntil( pxPreviousWakeTime, xTimeIncrement )
 #endif
@@ -3038,16 +3060,6 @@
  * infinite loop in idle task function when performing unit tests. */
 #ifndef configCONTROL_INFINITE_LOOP
     #define configCONTROL_INFINITE_LOOP()
-#endif
-
-/* Set configENABLE_PAC and/or configENABLE_BTI to 1 to enable PAC and/or BTI
- * support and 0 to disable them. These are currently used in ARMv8.1-M ports. */
-#ifndef configENABLE_PAC
-    #define configENABLE_PAC    0
-#endif
-
-#ifndef configENABLE_BTI
-    #define configENABLE_BTI    0
 #endif
 
 /* Sometimes the FreeRTOSConfig.h settings only allow a task to be created using

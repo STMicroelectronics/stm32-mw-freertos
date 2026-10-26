@@ -1,6 +1,8 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2025 Arm Limited and/or its affiliates
+ * <open-source-office@arm.com>
  *
  * SPDX-License-Identifier: MIT
  *
@@ -57,9 +59,19 @@
     #define portNVIC_SYSTICK_CLK    ( 0 )
 #endif
 
+/* Unprivileged critical sections are not supported when using MPU wrappers
+ * version 2. Default the option to 0 and reject an explicit value of 1. */
 #ifndef configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS
-    #warning "configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS is not defined. We recommend defining it to 0 in FreeRTOSConfig.h for better security."
-    #define configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS    1
+    #if ( configUSE_MPU_WRAPPERS_V1 == 0 )
+        #define configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS    0
+    #else
+        #warning "configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS is not defined. We recommend defining it to 0 in FreeRTOSConfig.h for better security."
+        #define configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS    1
+    #endif
+#else
+    #if ( ( configUSE_MPU_WRAPPERS_V1 == 0 ) && ( configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS == 1 ) )
+        #error configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS is not supported with MPU wrappers version 2 ( configUSE_MPU_WRAPPERS_V1 == 0 ).
+    #endif
 #endif
 
 /* Prototype of all Interrupt Service Routines (ISRs). */
@@ -518,7 +530,7 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
         extern UBaseType_t uxSystemCallImplementations[ NUM_SYSTEM_CALLS ];
         xMPU_SETTINGS * pxMpuSettings;
         uint32_t * pulSystemCallStack;
-        uint32_t ulStackFrameSize, ulSystemCallLocation, i;
+        uint32_t ulHardwareSavedExceptionFrameSize, ulSystemCallLocation, i;
 
         #if defined( __ARMCC_VERSION )
             /* Declaration when these variable are defined in code instead of being
@@ -553,10 +565,14 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
         {
             pulSystemCallStack = pxMpuSettings->xSystemCallStackInfo.pulSystemCallStack;
 
+            /* Hardware Saved Stack Frame Size upon Exception entry:
+             * - No FPU: basic frame (R0-R3, R12, LR, PC, and xPSR) = 8 words.
+             * - With FPU (lazy stacking): basic frame + S0–S15 + FPSCR + reserved word = 26 words.
+             */
             if( ( ulLR & portEXC_RETURN_STACK_FRAME_TYPE_MASK ) == 0UL )
             {
                 /* Extended frame i.e. FPU in use. */
-                ulStackFrameSize = 26;
+                ulHardwareSavedExceptionFrameSize = 26;
                 __asm volatile (
                     " vpush {s0}         \n" /* Trigger lazy stacking. */
                     " vpop  {s0}         \n" /* Nullify the affect of the above instruction. */
@@ -566,14 +582,14 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
             else
             {
                 /* Standard frame i.e. FPU not in use. */
-                ulStackFrameSize = 8;
+                ulHardwareSavedExceptionFrameSize = 8;
             }
 
             /* Make space on the system call stack for the stack frame. */
-            pulSystemCallStack = pulSystemCallStack - ulStackFrameSize;
+            pulSystemCallStack = pulSystemCallStack - ulHardwareSavedExceptionFrameSize;
 
             /* Copy the stack frame. */
-            for( i = 0; i < ulStackFrameSize; i++ )
+            for( i = 0; i < ulHardwareSavedExceptionFrameSize; i++ )
             {
                 pulSystemCallStack[ i ] = pulTaskStack[ i ];
             }
@@ -591,7 +607,7 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
 
             /* Remember the location where we should copy the stack frame when we exit from
              * the system call. */
-            pxMpuSettings->xSystemCallStackInfo.pulTaskStack = pulTaskStack + ulStackFrameSize;
+            pxMpuSettings->xSystemCallStackInfo.pulTaskStack = pulTaskStack + ulHardwareSavedExceptionFrameSize;
 
             /* Store the value of the Link Register before the SVC was raised.
              * It contains the address of the caller of the System Call entry
@@ -644,7 +660,7 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
         extern TaskHandle_t pxCurrentTCB;
         xMPU_SETTINGS * pxMpuSettings;
         uint32_t * pulTaskStack;
-        uint32_t ulStackFrameSize, ulSystemCallLocation, i;
+        uint32_t ulHardwareSavedExceptionFrameSize, ulSystemCallLocation, i;
 
         #if defined( __ARMCC_VERSION )
             /* Declaration when these variable are defined in code instead of being
@@ -675,10 +691,14 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
         {
             pulTaskStack = pxMpuSettings->xSystemCallStackInfo.pulTaskStack;
 
+            /* Hardware Saved Stack Frame Size upon Exception entry:
+             * - No FPU: basic frame (R0-R3, R12, LR, PC, and xPSR) = 8 words.
+             * - With FPU (lazy stacking): basic frame + S0–S15 + FPSCR + reserved word = 26 words.
+             */
             if( ( ulLR & portEXC_RETURN_STACK_FRAME_TYPE_MASK ) == 0UL )
             {
                 /* Extended frame i.e. FPU in use. */
-                ulStackFrameSize = 26;
+                ulHardwareSavedExceptionFrameSize = 26;
                 __asm volatile (
                     " vpush {s0}         \n" /* Trigger lazy stacking. */
                     " vpop  {s0}         \n" /* Nullify the affect of the above instruction. */
@@ -688,14 +708,14 @@ void vSVCHandler_C( uint32_t * pulParam ) /* PRIVILEGED_FUNCTION */
             else
             {
                 /* Standard frame i.e. FPU not in use. */
-                ulStackFrameSize = 8;
+                ulHardwareSavedExceptionFrameSize = 8;
             }
 
             /* Make space on the task stack for the stack frame. */
-            pulTaskStack = pulTaskStack - ulStackFrameSize;
+            pulTaskStack = pulTaskStack - ulHardwareSavedExceptionFrameSize;
 
             /* Copy the stack frame. */
-            for( i = 0; i < ulStackFrameSize; i++ )
+            for( i = 0; i < ulHardwareSavedExceptionFrameSize; i++ )
             {
                 pulTaskStack[ i ] = pulSystemCallStack[ i ];
             }
@@ -1330,7 +1350,7 @@ static uint32_t prvGetMPURegionSizeSetting( uint32_t ulActualSizeInBytes )
     }
 
     /* Shift the code by one before returning so it can be written directly
-     * into the the correct bit position of the attribute register. */
+     * into the correct bit position of the attribute register. */
     return( ulReturnValue << 1UL );
 }
 /*-----------------------------------------------------------*/

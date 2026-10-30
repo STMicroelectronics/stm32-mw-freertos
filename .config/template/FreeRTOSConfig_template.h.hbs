@@ -3,7 +3,7 @@
 {{assign 'freertos_cxt' @root.freertos_context.[0].settings.parameters~}}
 {{log "FreeRTOS Config template freertos_cxt:" (toJSON @root.freertos_cxt)~}}
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -38,7 +38,14 @@
 {{~#with core}}
 {{~#with basic}}
 {{~#with kernel~}}{{!Kernel}}
+/* MPU specific related definitions */
 #define configENABLE_MPU                              {{#if mpu_mode}}1U{{else}}0U{{/if}}
+#define configUSE_MPU_WRAPPERS_V1                     0U
+#define configTOTAL_MPU_REGIONS                       {{#if (eq @root.freertos_cxt.interfaces.portable.core 'ARM_CM85_NTZ')}}16U{{else}}8U{{/if}}
+#define configENABLE_ACCESS_CONTROL_LIST              0U
+#define configPROTECTED_KERNEL_OBJECT_POOL_SIZE       10U
+#define configSYSTEM_CALL_STACK_SIZE                  128U
+
 #define configENABLE_FPU                              {{#if fpu_mode}}1U{{else}}0U{{/if}}
 #define configUSE_TICKLESS_IDLE                       {{#if tickless_mode}}1U{{else}}0U{{/if}}
 #define configUSE_PREEMPTION                          {{#if (eq scheduling_mode 'PREEMPTIVE')}}1U{{else}}0U{{/if}}
@@ -127,6 +134,7 @@ PRIORITY THAN THIS! (higher priorities are lower numeric values). */
 #define INCLUDE_xTaskResumeFromISR                    {{#if xTaskResumeFromISR}}1U{{else}}0U{{/if}}
 #define INCLUDE_uxTaskGetStackHighWaterMark           {{#if uxTaskGetStackHighWaterMark}}1U{{else}}0U{{/if}}
 #define INCLUDE_uxTaskGetStackHighWaterMark2          {{#if uxTaskGetStackHighWaterMark2}}1U{{else}}0U{{/if}}
+#define INCLUDE_xTaskGetIdleTaskHandle                {{#if xTaskGetIdleTaskHandle}}1U{{else}}0U{{/if}}
 #define INCLUDE_xTaskGetCurrentTaskHandle             {{#if xTaskGetCurrentTaskHandle}}1U{{else}}0U{{/if}}
 #define INCLUDE_eTaskGetState                         {{#if eTaskGetState}}1U{{else}}0U{{/if}}
 #define INCLUDE_xTaskAbortDelay                       {{#if xTaskAbortDelay}}1U{{else}}0U{{/if}}
@@ -206,7 +214,7 @@ standard names. */
 {{#if generate_run_time_stats}}
 #if defined(__ICCARM__) || defined(__ARMCC_VERSION) || defined(__GNUC__)
 void ConfigRunTimeCounter (void);
-uint64_t GetRunTimeCounterValue (void);
+configRUN_TIME_COUNTER_TYPE GetRunTimeCounterValue (void);
 #endif /* defined(__ICCARM__) || defined(__ARMCC_VERSION) || defined(__GNUC__) */
 
 {{/if}}

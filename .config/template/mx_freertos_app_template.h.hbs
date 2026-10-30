@@ -103,7 +103,7 @@ void vApplicationStackOverflowHook (TaskHandle_t xTask, char * pcTaskName);
 /* Run Time Counter functions ------------------------------------------------*/
 {{#if generate_run_time_stats}}
 void ConfigRunTimeCounter (void);
-uint64_t GetRunTimeCounterValue (void);
+configRUN_TIME_COUNTER_TYPE GetRunTimeCounterValue (void);
 {{/if}}
 {{~/if~}}
 {{~/with~}}

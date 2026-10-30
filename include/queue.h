@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -44,7 +44,7 @@
 
 /**
  * Type by which queues are referenced.  For example, a call to xQueueCreate()
- * returns an QueueHandle_t variable that can then be used as a parameter to
+ * returns a QueueHandle_t variable that can then be used as a parameter to
  * xQueueSend(), xQueueReceive(), etc.
  */
 struct QueueDefinition; /* Using old naming convention so as not to break kernel aware debuggers. */
@@ -60,7 +60,7 @@ typedef struct QueueDefinition   * QueueSetHandle_t;
 /**
  * Queue sets can contain both queues and semaphores, so the
  * QueueSetMemberHandle_t is defined as a type to be used where a parameter or
- * return value can be either an QueueHandle_t or an SemaphoreHandle_t.
+ * return value can be either a QueueHandle_t or a SemaphoreHandle_t.
  */
 typedef struct QueueDefinition   * QueueSetMemberHandle_t;
 
@@ -185,7 +185,7 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * @param pucQueueStorage If uxItemSize is not zero then
  * pucQueueStorage must point to a uint8_t array that is at least large
  * enough to hold the maximum number of items that can be in the queue at any
- * one time - which is ( uxQueueLength * uxItemsSize ) bytes.  If uxItemSize is
+ * one time - which is ( uxQueueLength * uxItemSize ) bytes.  If uxItemSize is
  * zero then pucQueueStorage can be NULL.
  *
  * @param pxQueueBuffer Must point to a variable of type StaticQueue_t, which
@@ -202,8 +202,8 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  *  char ucData[ 20 ];
  * };
  *
- #define QUEUE_LENGTH 10
- #define ITEM_SIZE sizeof( uint32_t )
+ * #define QUEUE_LENGTH 10
+ * #define ITEM_SIZE sizeof( uint32_t )
  *
  * // xQueueBuffer will hold the queue structure.
  * StaticQueue_t xQueueBuffer;
@@ -217,10 +217,10 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  *  QueueHandle_t xQueue1;
  *
  *  // Create a queue capable of containing 10 uint32_t values.
- *  xQueue1 = xQueueCreate( QUEUE_LENGTH, // The number of items the queue can hold.
- *                          ITEM_SIZE     // The size of each item in the queue
- *                          &( ucQueueStorage[ 0 ] ), // The buffer that will hold the items in the queue.
- *                          &xQueueBuffer ); // The buffer that will hold the queue structure.
+ *  xQueue1 = xQueueCreateStatic( QUEUE_LENGTH,             // The number of items the queue can hold.
+ *                                ITEM_SIZE,                // The size of each item in the queue.
+ *                                &( ucQueueStorage[ 0 ] ), // The buffer that will hold the items in the queue.
+ *                                &xQueueBuffer );          // The buffer that will hold the queue structure.
  *
  *  // The queue is guaranteed to be created successfully as no dynamic memory
  *  // allocation is used.  Therefore xQueue1 is now a handle to a valid queue.
@@ -604,7 +604,7 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * BaseType_t xQueueGenericSend(
  *                                  QueueHandle_t xQueue,
  *                                  const void * pvItemToQueue,
- *                                  TickType_t xTicksToWait
+ *                                  TickType_t xTicksToWait,
  *                                  BaseType_t xCopyPosition
  *                              );
  * @endcode
@@ -1026,7 +1026,11 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  *  // Now the buffer is empty we can switch context if necessary.
  *  if( xHigherPriorityTaskWoken )
  *  {
- *      taskYIELD ();
+ *      // As xHigherPriorityTaskWoken is now set to pdTRUE then a context
+ *      // switch should be requested. The macro used is port specific and
+ *      // will be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() -
+ *      // refer to the documentation page for the port being used.
+ *      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
  *  }
  * }
  * @endcode
@@ -1098,7 +1102,11 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  *  // Now the buffer is empty we can switch context if necessary.
  *  if( xHigherPriorityTaskWoken )
  *  {
- *      taskYIELD ();
+ *      // As xHigherPriorityTaskWoken is now set to pdTRUE then a context
+ *      // switch should be requested. The macro used is port specific and
+ *      // will be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() -
+ *      // refer to the documentation page for the port being used.
+ *      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
  *  }
  * }
  * @endcode
@@ -1181,7 +1189,7 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  *
  *  // ...
  *
- *  if( xHigherPrioritytaskWoken == pdTRUE )
+ *  if( xHigherPriorityTaskWoken == pdTRUE )
  *  {
  *      // Writing to the queue caused a task to unblock and the unblocked task
  *      // has a priority higher than or equal to the priority of the currently
@@ -1429,23 +1437,27 @@ BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue,
  * // ISR that outputs all the characters received on the queue.
  * void vISR_Routine( void )
  * {
- * BaseType_t xTaskWokenByReceive = pdFALSE;
+ * BaseType_t xHigherPriorityTaskWoken = pdFALSE;
  * char cRxedChar;
  *
- *  while( xQueueReceiveFromISR( xQueue, ( void * ) &cRxedChar, &xTaskWokenByReceive) )
+ *  while( xQueueReceiveFromISR( xQueue, ( void * ) &cRxedChar, &xHigherPriorityTaskWoken) )
  *  {
  *      // A character was received.  Output the character now.
  *      vOutputCharacter( cRxedChar );
  *
  *      // If removing the character from the queue woke the task that was
- *      // posting onto the queue xTaskWokenByReceive will have been set to
+ *      // posting onto the queue xHigherPriorityTaskWoken will have been set to
  *      // pdTRUE.  No matter how many times this loop iterates only one
  *      // task will be woken.
  *  }
  *
- *  if( xTaskWokenByReceive != ( char ) pdFALSE;
+ *  if( xHigherPriorityTaskWoken == pdTRUE )
  *  {
- *      taskYIELD ();
+ *      // As xHigherPriorityTaskWoken is now set to pdTRUE then a context
+ *      // switch should be requested. The macro used is port specific and
+ *      // will be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() -
+ *      // refer to the documentation page for the port being used.
+ *      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
  *  }
  * }
  * @endcode
@@ -1652,7 +1664,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) PRIVILEGED_FUNCTION;
  * Note 2:  Blocking on a queue set that contains a mutex will not cause the
  * mutex holder to inherit the priority of the blocked task.
  *
- * Note 3:  An additional 4 bytes of RAM is required for each space in a every
+ * Note 3:  An additional 4 bytes of RAM is required for each space in every
  * queue added to a queue set.  Therefore counting semaphores that have a high
  * maximum count value should not be added to a queue set.
  *
@@ -1704,7 +1716,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) PRIVILEGED_FUNCTION;
  * Note 2:  Blocking on a queue set that contains a mutex will not cause the
  * mutex holder to inherit the priority of the blocked task.
  *
- * Note 3:  An additional 4 bytes of RAM is required for each space in a every
+ * Note 3:  An additional 4 bytes of RAM is required for each space in every
  * queue added to a queue set.  Therefore counting semaphores that have a high
  * maximum count value should not be added to a queue set.
  *
@@ -1755,7 +1767,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) PRIVILEGED_FUNCTION;
  * a call to xQueueSelectFromSet() has first returned a handle to that set member.
  *
  * @param xQueueOrSemaphore The handle of the queue or semaphore being added to
- * the queue set (cast to an QueueSetMemberHandle_t type).
+ * the queue set (cast to a QueueSetMemberHandle_t type).
  *
  * @param xQueueSet The handle of the queue set to which the queue or semaphore
  * is being added.
@@ -1778,7 +1790,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) PRIVILEGED_FUNCTION;
  * function.
  *
  * @param xQueueOrSemaphore The handle of the queue or semaphore being removed
- * from the queue set (cast to an QueueSetMemberHandle_t type).
+ * from the queue set (cast to a QueueSetMemberHandle_t type).
  *
  * @param xQueueSet The handle of the queue set in which the queue or semaphore
  * is included.
@@ -1824,7 +1836,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) PRIVILEGED_FUNCTION;
  * a QueueSetMemberHandle_t type) contained in the queue set that contains data,
  * or the handle of a semaphore (cast to a QueueSetMemberHandle_t type) contained
  * in the queue set that is available, or NULL if no such queue or semaphore
- * exists before before the specified block time expires.
+ * exists before the specified block time expires.
  */
 #if ( configUSE_QUEUE_SETS == 1 )
     QueueSetMemberHandle_t xQueueSelectFromSet( QueueSetHandle_t xQueueSet,

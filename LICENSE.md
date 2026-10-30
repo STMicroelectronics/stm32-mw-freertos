@@ -18,10 +18,13 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 <!-- Copyrights statements for [FreeRTOS Real Time Kernel] [MIT] -->
 Copyrights statements for [FreeRTOS Real Time Kernel]
 
-	Copyright 2024 Arm Limited and/or its affiliates
-
 	Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved
 
+	Copyright 2024-2026 Arm Limited and/or its affiliates <open-source-office@arm.com>
+
+	Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
+
+	Copyright 2026 Arm Limited and/or its affiliates <open-source-office@arm.com>
 <!-- End of Copyrights statements for [FreeRTOS Real Time Kernel] -->
 
 <!-- Copyrights statements for [FreeRTOS Real Time Kernel_STM32] [MIT] -->
@@ -29,6 +32,5 @@ Copyrights statements for [FreeRTOS Real Time Kernel_STM32]
 
 	Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved
 
-	Copyright (c) 2026 STMicroelectronics.
-
+	Copyright (c) 2026 STMicroelectronics - All rights reserved
 <!-- End of Copyrights statements for [FreeRTOS Real Time Kernel_STM32] -->

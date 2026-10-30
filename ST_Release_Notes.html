@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Release Notes for FreeRTOS SW Pack</title>
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -22,7 +25,7 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
-  <link rel="stylesheet" href="./_htmresc/mini-st_2020.css" />
+  <link rel="stylesheet" href="_htmresc/mini-st_2020.css" />
 </head>
 <body>
 <div class="row">
@@ -56,18 +59,19 @@ SW Pack online documentation</a>.</p>
 <section id="update-history" class="col-sm-12 col-lg-8">
 <h1>Update History</h1>
 <div class="collapse">
-<input type="checkbox" id="collapse-section-2.1.0" checked aria-hidden="true">
-<label for="collapse-section-2.1.0" aria-hidden="true"><strong>2.1.0 /
-05-June-2026</strong></label>
+<input type="checkbox" id="collapse-section-2.2.0" checked aria-hidden="true">
+<label for="collapse-section-2.2.0" aria-hidden="true"><strong>2.2.0 /
+21-September-2026</strong></label>
 <div>
 <h2 id="main-changes">Main changes</h2>
 <p>Release of FreeRTOS SW Pack update:</p>
 <ul>
+<li>FreeRTOS version 11.3.1 support</li>
 <li>Bug fixing</li>
 <li>Miscellaneous update of .config files.</li>
 </ul>
 <p>This pack is based on FreeRTOS-Kernel <a
-href="https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.2.0">V11.2.0
+href="https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.3.1">V11.3.1
 version</a></p>
 <p><br />
 </p>
@@ -80,7 +84,7 @@ specific files</li>
 </p>
 <h2 id="known-limitations">Known Limitations</h2>
 <ul>
-<li>MPU feature with FreeRTOS is not yet supported.</li>
+<li>Security, MPU and TrustZone features are not yet supported.</li>
 </ul>
 <p><br />
 </p>
@@ -91,13 +95,16 @@ compilers</h2>
 ST-LINK</li>
 <li>MDK-ARM Keil uVision V5.42</li>
 <li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
-<li>STM32CubeMX2 V1.0.1</li>
+<li>STM32CubeMX2 V1.1.1</li>
 </ul>
 <p><br />
 </p>
 <h2 id="supported-devices-and-boards">Supported devices and boards</h2>
 <ul>
 <li>STM32C5 series</li>
+<li>STM32V8 series</li>
+<li>STM32H7P series</li>
+<li>STM32G5 series</li>
 </ul>
 <p><br />
 </p>
@@ -109,17 +116,24 @@ ST-LINK</li>
 </p>
 <h2 id="dependencies">Dependencies</h2>
 <ul>
-<li>STM32C5xx HAL Drivers V2.0.0</li>
+<li>STM32C5xx HAL Drivers V2.1.0</li>
+<li>STM32V8xx HAL Drivers V2.0.0</li>
+<li>STM32H7Pxx HAL Drivers V2.0.0</li>
+<li>STM32G5xx HAL Drivers V2.0.0</li>
 </ul>
 </div>
 </div>
 <div class="collapse">
-<input type="checkbox" id="collapse-section-2.0.0" checked aria-hidden="true">
-<label for="collapse-section-2.0.0" aria-hidden="true"><strong>2.0.0 /
-13-March-2026</strong></label>
+<input type="checkbox" id="collapse-section-2.1.0" aria-hidden="true">
+<label for="collapse-section-2.1.0" aria-hidden="true"><strong>2.1.0 /
+05-June-2026</strong></label>
 <div>
 <h2 id="main-changes-1">Main changes</h2>
-<p>First Official release of FreeRTOS SW Pack.</p>
+<p>Release of FreeRTOS SW Pack update:</p>
+<ul>
+<li>Bug fixing</li>
+<li>Miscellaneous update of .config files.</li>
+</ul>
 <p>This pack is based on FreeRTOS-Kernel <a
 href="https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.2.0">V11.2.0
 version</a></p>
@@ -134,7 +148,7 @@ specific files</li>
 </p>
 <h2 id="known-limitations-1">Known Limitations</h2>
 <ul>
-<li>None</li>
+<li>MPU feature with FreeRTOS is not yet supported.</li>
 </ul>
 <p><br />
 </p>
@@ -145,7 +159,7 @@ and compilers</h2>
 ST-LINK</li>
 <li>MDK-ARM Keil uVision V5.42</li>
 <li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
-<li>STM32CubeMX2 V1.0.0</li>
+<li>STM32CubeMX2 V1.0.1</li>
 </ul>
 <p><br />
 </p>
@@ -163,6 +177,61 @@ boards</h2>
 <p><br />
 </p>
 <h2 id="dependencies-1">Dependencies</h2>
+<ul>
+<li>STM32C5xx HAL Drivers V2.0.0</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section-2.0.0" aria-hidden="true">
+<label for="collapse-section-2.0.0" aria-hidden="true"><strong>2.0.0 /
+13-March-2026</strong></label>
+<div>
+<h2 id="main-changes-2">Main changes</h2>
+<p>First Official release of FreeRTOS SW Pack.</p>
+<p>This pack is based on FreeRTOS-Kernel <a
+href="https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.2.0">V11.2.0
+version</a></p>
+<p><br />
+</p>
+<h2 id="contents-2">Contents</h2>
+<ul>
+<li>FreeRTOS real time kernel and micorocontrollers and/or compiler
+specific files</li>
+</ul>
+<p><br />
+</p>
+<h2 id="known-limitations-2">Known Limitations</h2>
+<ul>
+<li>None</li>
+</ul>
+<p><br />
+</p>
+<h2 id="development-toolchains-and-compilers-2">Development toolchains
+and compilers</h2>
+<ul>
+<li>IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 +
+ST-LINK</li>
+<li>MDK-ARM Keil uVision V5.42</li>
+<li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
+<li>STM32CubeMX2 V1.0.0</li>
+</ul>
+<p><br />
+</p>
+<h2 id="supported-devices-and-boards-2">Supported devices and
+boards</h2>
+<ul>
+<li>STM32C5 series</li>
+</ul>
+<p><br />
+</p>
+<h2 id="backward-compatibility-2">Backward compatibility</h2>
+<ul>
+<li>None</li>
+</ul>
+<p><br />
+</p>
+<h2 id="dependencies-2">Dependencies</h2>
 <ul>
 <li>STM32C5xx HAL Drivers V2.0.0</li>
 </ul>

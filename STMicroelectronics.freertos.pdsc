@@ -7,6 +7,12 @@
       <stm32:pack type="MW" friendlyName="freertos" shortDesc="FreeRTOS Middleware">
         <relocation-info parent="middleware" layer="" element=""/>
         <compatibility>
+          <release version="2.2.0">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
           <release version="2.1.0">
             <applicable-schema schemaType="sw-configuration" schemaVersion="3.9.0"/>
             <applicable-api-group apiType="codegen-getters">
@@ -50,14 +56,24 @@
   <repository type="git">https://github.com/STMicroelectronics/stm32-mw-freertos/tree/hal2</repository>
   <license>LICENSE.md</license>
   <releases>
+    <release date="2026-09-04" version="2.2.0">
+         FreeRTOS pack version based on the 11.3.1 Release
+         ## Main changes
+          * FreeRTOS pack updated
+            * FreeRTOS version 11.3.1 support
+            * Bug fixing
+            * Miscellaneous update of .config files.
+         ## Known Limitations
+          * Security, MPU and TrustZone features are not yet supported.
+    </release>
     <release date="2026-05-04" version="2.1.0">
          FreeRTOS pack version based on the 11.2.0 Release
          ## Main changes
           * FreeRTOS pack updated
-            * Bug fixing 
+            * Bug fixing
             * Miscellaneous update of .config files.
          ## Known Limitations
-          * Security,MPU and TrustZone features are not yet supported.
+          * Security, MPU and TrustZone features are not yet supported.
     </release>
     <release date="2026-03-06" version="2.0.0">
          FreeRTOS pack version based on the 11.2.0 Release
@@ -182,7 +198,7 @@
   <!-- end of codegen -->
   <!-- START: STMicroelectronics MW FREERTOS -->
   <components>
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="Core" Cversion="11.2.0" condition="FreeRTOS Memory Heap condition" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="Core" Cversion="11.3.1" condition="FreeRTOS Memory Heap condition" maxInstances="1">
       <description>FreeRTOS Core component </description>
       <files>
         <!-- common files -->
@@ -221,6 +237,7 @@
         <file category="header" name="include/task.h"/>
         <file category="header" name="include/timers.h"/>
         <file category="source" name="portable/Common/mpu_wrappers.c"/>
+        <file category="source" name="portable/Common/mpu_wrappers_v2.c"/>
         <!-- CM33 NTZ portable IAR files -->
         <file category="source" name="portable/IAR/ARM_CM33_NTZ/non_secure/port.c" condition="CM33 TZ Disabled IAR Condition"/>
         <file category="source" name="portable/IAR/ARM_CM33_NTZ/non_secure/portasm.s" condition="CM33 TZ Disabled IAR Condition"/>
@@ -279,7 +296,7 @@
     <!--<components> -->
     <!-- START: STMicroelectronics MW FreeRTOS -->
     <!-- Stream Buffer Component -->
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="Stream Buffer" Cversion="11.2.0" maxInstances="1" condition="Stream Buffers condition">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="Stream Buffer" Cversion="11.3.1" maxInstances="1" condition="Stream Buffers condition">
       <description>FreeRTOS Stream Buffer component </description>
       <files>
         <file category="source" name="stream_buffer.c"/>
@@ -287,35 +304,35 @@
       </files>
     </component>
     <!-- Memory Heap variants -->
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_1" condition="FreeRTOS Memory Heap condition" Cversion="11.2.0" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_1" condition="FreeRTOS Memory Heap condition" Cversion="11.3.1" maxInstances="1">
       <description>FreeRTOS  Memory Heap (Heap 1) component </description>
       <files>
         <file category="source" name="portable/MemMang/heap_1.c"/>
         <file category="include" name="include/"/>
       </files>
     </component>
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_2" condition="FreeRTOS Memory Heap condition" Cversion="11.2.0" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_2" condition="FreeRTOS Memory Heap condition" Cversion="11.3.1" maxInstances="1">
       <description>FreeRTOS  Memory Heap (Heap 2) component </description>
       <files>
         <file category="source" name="portable/MemMang/heap_2.c"/>
         <file category="include" name="include/"/>
       </files>
     </component>
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_3" condition="FreeRTOS Memory Heap condition" Cversion="11.2.0" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_3" condition="FreeRTOS Memory Heap condition" Cversion="11.3.1" maxInstances="1">
       <description>FreeRTOS  Memory Heap (Heap 3) component </description>
       <files>
         <file category="source" name="portable/MemMang/heap_3.c"/>
         <file category="include" name="include/"/>
       </files>
     </component>
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_4" isDefaultVariant="true" condition="FreeRTOS Memory Heap condition" Cversion="11.2.0" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_4" isDefaultVariant="true" condition="FreeRTOS Memory Heap condition" Cversion="11.3.1" maxInstances="1">
       <description>FreeRTOS  Memory Heap (Heap 4) component </description>
       <files>
         <file category="source" name="portable/MemMang/heap_4.c"/>
         <file category="include" name="include/"/>
       </files>
     </component>
-    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_5" condition="FreeRTOS Memory Heap condition" Cversion="11.2.0" maxInstances="1">
+    <component Cclass="RTOS" Cgroup="FreeRTOS" Csub="MemMang" Cvariant="Heap_5" condition="FreeRTOS Memory Heap condition" Cversion="11.3.1" maxInstances="1">
       <description>FreeRTOS  Memory Heap (Heap 5) component </description>
       <files>
         <file category="source" name="portable/MemMang/heap_5.c"/>
@@ -325,7 +342,7 @@
     <!--</components> -->
     <!-- END: STMicroelectronics MW FREERTOS -->
     <!-- START: STMicroelectronics MW FREERTOS CODE GEN -->
-    <component generator="freertos_mx2codegen" Cclass="RTOS" Cgroup="STM32CubeMX2 Config" Csub="FreeRTOS" Cversion="2.1.0" condition="FreeRTOS Init condition">
+    <component generator="freertos_mx2codegen" Cclass="RTOS" Cgroup="STM32CubeMX2 Config" Csub="FreeRTOS" Cversion="2.2.0" condition="FreeRTOS Init condition">
       <description>STMicroelectronics: STM32Cube Configuration Code Generation for FreeRTOS</description>
       <environments>
         <environment name="STM32Cube">

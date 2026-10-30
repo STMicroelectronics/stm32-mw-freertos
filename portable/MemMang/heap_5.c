@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -284,7 +284,14 @@ void * pvPortMalloc( size_t xWantedSize )
                 {
                     pxPreviousBlock = pxBlock;
                     pxBlock = heapPROTECT_BLOCK_POINTER( pxBlock->pxNextFreeBlock );
-                    heapVALIDATE_BLOCK_POINTER( pxBlock );
+
+                    /* pxEnd is the end marker of the free list. It is located at
+                     * pucHeapHighAddress and is not part of the usable heap, so it
+                     * must be excluded from the heap block pointer validation. */
+                    if( pxBlock != pxEnd )
+                    {
+                        heapVALIDATE_BLOCK_POINTER( pxBlock );
+                    }
                 }
 
                 /* If the end marker was reached then a block of adequate size
@@ -672,7 +679,7 @@ void vPortDefineHeapRegions( const HeapRegion_t * const pxHeapRegions ) /* PRIVI
 void vPortGetHeapStats( HeapStats_t * pxHeapStats )
 {
     BlockLink_t * pxBlock;
-    size_t xBlocks = 0, xMaxSize = 0, xMinSize = portMAX_DELAY; /* portMAX_DELAY used as a portable way of getting the maximum value. */
+    size_t xBlocks = 0, xMaxSize = 0, xMinSize = SIZE_MAX;
 
     vTaskSuspendAll();
     {

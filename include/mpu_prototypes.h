@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -369,6 +369,9 @@ BaseType_t MPU_xTimerGenericCommandFromISR( TimerHandle_t xTimer,
                                             BaseType_t * const pxHigherPriorityTaskWoken,
                                             const TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
+BaseType_t MPU_xTimerDelete( TimerHandle_t xTimer,
+                             TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
+
 /* MPU versions of event_group.h API functions. */
 EventBits_t MPU_xEventGroupWaitBits( EventGroupHandle_t xEventGroup,
                                      const EventBits_t uxBitsToWaitFor,
@@ -409,12 +412,15 @@ EventBits_t MPU_xEventGroupSync( EventGroupHandle_t xEventGroup,
 
 BaseType_t MPU_xEventGroupGetStaticBuffer( EventGroupHandle_t xEventGroup,
                                            StaticEventGroup_t ** ppxEventGroupBuffer ) PRIVILEGED_FUNCTION;
-BaseType_t MPU_xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup,
-                                            const EventBits_t uxBitsToClear ) PRIVILEGED_FUNCTION;
-BaseType_t MPU_xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup,
-                                          const EventBits_t uxBitsToSet,
-                                          BaseType_t * pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
 EventBits_t MPU_xEventGroupGetBitsFromISR( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
+
+#if ( configUSE_MPU_WRAPPERS_V1 == 0 )
+    BaseType_t MPU_xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup,
+                                                const EventBits_t uxBitsToClear ) FREERTOS_SYSTEM_CALL;
+    BaseType_t MPU_xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup,
+                                              const EventBits_t uxBitsToSet,
+                                              BaseType_t * pxHigherPriorityTaskWoken ) FREERTOS_SYSTEM_CALL;
+#endif /* #if ( configUSE_MPU_WRAPPERS_V1 == 0 ) */
 
 /* MPU versions of message/stream_buffer.h API functions. */
 size_t MPU_xStreamBufferSend( StreamBufferHandle_t xStreamBuffer,

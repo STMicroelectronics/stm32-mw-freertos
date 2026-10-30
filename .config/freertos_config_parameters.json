@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "componentid": "::RTOS:STM32CubeMX2 Config:FreeRTOS",
   "type": "object",
-  "grammarVersion": "3.9.0",
+  "grammarVersion": "3.8.0",
   "functions": [
     {
       "path": ".config/template/helpers/freertos_helpers.js",
@@ -21,7 +21,7 @@
             "version": {
               "title": "FreeRTOS version",
               "type": "string",
-              "default": "11.2.0",
+              "default": "11.3.1",
               "actions": [
                 {
                   "type": "disable",
@@ -59,32 +59,18 @@
               "oneOf": [
                 {
                   "title": "Default",
-                  "const": "DEFAULT"
-                },
-                {
-                  "title": "Low footprint",
-                  "const": "LOW_FOOTPRINT",
-                  "actions": [
-                    {
-                      "type": "disable",
-                      "condition": "true",
-                      "message": "The low footprint profile is not yet implemented and is currently unavailable."
-                    }
-                  ]
-                },
-                {
-                  "title": "Low power",
-                  "const": "LOW_POWER",
-                  "actions": [
-                    {
-                      "type": "disable",
-                      "condition": "true",
-                      "message": "The low power profile is not yet implemented and is currently unavailable."
-                    }
-                  ]
+                  "const": "DEFAULT",
+                  "description": "Default profile that initializes all configuration parameters with their default values."
                 }
               ],
-              "default": "DEFAULT"
+              "default": "DEFAULT",
+              "actions": [
+                {
+                  "type": "disable",
+                  "condition": "true",
+                  "message": "Only the Default profile is available."
+                }
+              ]
             }
           }
         },
@@ -755,6 +741,12 @@
                           "default": false,
                           "description": "To include the uxTaskGetStackHighWaterMark2() API function, set uxTaskGetStackHighWaterMark2 to 1 (Enabled), and to exclude it from your build, set uxTaskGetStackHighWaterMark2 to 0 (Disabled)."
                         },
+                        "xTaskGetIdleTaskHandle": {
+                          "type": "boolean",
+                          "title": "xTaskGetIdleTaskHandle",
+                          "default": false,
+                          "description": "To include the xTaskGetIdleTaskHandle() API function, set xTaskGetIdleTaskHandle to 1 (Enabled), and to exclude it from your build, set xTaskGetIdleTaskHandle to 0 (Disabled)."
+                        },
                         "xTaskGetCurrentTaskHandle": {
                           "type": "boolean",
                           "title": "xTaskGetCurrentTaskHandle",
@@ -963,8 +955,15 @@
                     },
                     {
                       "type": "disable",
-                      "condition": "$core.security.trustzone",
-                      "message": "Run FreeRTOS secure cannot be enabled when TrustZone support is enabled."
+                      "condition": "true",
+                      "message": "This option is set to 1 and locked because FreeRTOS runs secure-only on this hardware."
+                    },
+                    {
+                      "type": "set",
+                      "condition": "(($get('hwPlatform.device').cores[0].coreType == 'Cortex-M85') || ($get('hwPlatform.device').cores[0].coreType == 'Cortex-M55')) && (!$core.security.trustzone)",
+                      "attributes": {
+                        "const": true
+                      }
                     }
                   ]
                 },

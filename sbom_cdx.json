@@ -1,15 +1,15 @@
 {
     "bomFormat": "CycloneDX",
     "specVersion": "1.5",
-    "serialNumber": "urn:uuid:d88b96ed-34b2-460b-a18a-ebf45a159f69",
+    "serialNumber": "urn:uuid:a26de30a-2266-4e6d-b7f1-8986fb4c2f33",
     "version": 1,
     "metadata": {
-        "timestamp": "2026-05-20T16:24:47Z",
+        "timestamp": "2026-09-04T14:26:50Z",
         "tools": [
             {
                 "vendor": "Black Duck",
                 "name": "Hub",
-                "version": "2026.1.1"
+                "version": "2026.7.0"
             },
             {
                 "vendor": "CycloneDX",
@@ -24,12 +24,9 @@
         ],
         "component": {
             "type": "application",
-            "bom-ref": "da84dfa5-313b-426e-b06e-0936fbc55681",
-            "supplier": {
-                "name": "Organization: FreeRTOS"
-            },
+            "bom-ref": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82",
             "name": "FreeRTOS",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "licenses": [
                 {
                     "license": {
@@ -47,20 +44,20 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "da84dfa5-313b-426e-b06e-0936fbc55681"
+                    "value": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82"
                 }
             ]
+        },
+        "supplier": {
+            "name": "STMicroelectronics NV"
         }
     },
     "components": [
         {
             "type": "library",
-            "bom-ref": "da84dfa5-313b-426e-b06e-0936fbc55681---b7b4d7f2-95ac-4480-93c9-ceeee76828c8",
-            "supplier": {
-                "name": "Organization: FreeRTOS Real Time Kernel"
-            },
+            "bom-ref": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82---a4e1daf9-c90b-4b99-901f-14cf343f29ff",
             "name": "FreeRTOS Real Time Kernel",
-            "version": "V11.2.0",
+            "version": "V11.3.1",
             "licenses": [
                 {
                     "license": {
@@ -68,7 +65,7 @@
                     }
                 }
             ],
-            "cpe": "cpe:2.3:a:amazon:aws-freertos-kernel:11.2.0:*:*:*:*:*:*:*",
+            "cpe": "cpe:2.3:a:amazon:aws-freertos-kernel:11.3.1:*:*:*:*:*:*:*",
             "pedigree": {
                 "notes": "MIT License"
             },
@@ -79,19 +76,47 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "b7b4d7f2-95ac-4480-93c9-ceeee76828c8"
+                    "value": "a4e1daf9-c90b-4b99-901f-14cf343f29ff"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "da84dfa5-313b-426e-b06e-0936fbc55681---366876e1-c3ca-423f-953a-c1a2de988643",
-            "supplier": {
-                "name": "Organization: FreeRTOS Real Time Kernel_STM32"
+            "bom-ref": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82---8ffaa445-79b6-486a-9868-c9ea27a044c6",
+            "name": "FreeRTOS Real Time Kernel",
+            "version": "V11.3.1",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "cpe": "cpe:2.3:a:amazon:aws-freertos-kernel:11.3.1:*:*:*:*:*:*:*",
+            "pedigree": {
+                "notes": "MIT License"
             },
+            "properties": [
+                {
+                    "name": "BlackDuck-Component",
+                    "value": "a891e362-3cfb-4c9c-a85a-31976384370e"
+                },
+                {
+                    "name": "BlackDuck-ComponentVersion",
+                    "value": "a4e1daf9-c90b-4b99-901f-14cf343f29ff"
+                },
+                {
+                    "name": "BlackDuck-ComponentOrigin",
+                    "value": "8ffaa445-79b6-486a-9868-c9ea27a044c6"
+                }
+            ]
+        },
+        {
+            "type": "library",
+            "bom-ref": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82---d751f0b9-ad39-4228-a4ba-49cc0d1c7c48",
             "author": "STMicroelectronics",
             "name": "FreeRTOS Real Time Kernel_STM32",
-            "version": "v11.2.0 / ST modified 20250620",
+            "version": "v11.3.1 / ST modified 20260921",
             "licenses": [
                 {
                     "license": {
@@ -109,17 +134,17 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "366876e1-c3ca-423f-953a-c1a2de988643"
+                    "value": "d751f0b9-ad39-4228-a4ba-49cc0d1c7c48"
                 }
             ]
         }
     ],
     "dependencies": [
         {
-            "ref": "da84dfa5-313b-426e-b06e-0936fbc55681",
+            "ref": "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82",
             "dependsOn": [
-                "da84dfa5-313b-426e-b06e-0936fbc55681---b7b4d7f2-95ac-4480-93c9-ceeee76828c8",
-                "da84dfa5-313b-426e-b06e-0936fbc55681---366876e1-c3ca-423f-953a-c1a2de988643"
+                "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82---a4e1daf9-c90b-4b99-901f-14cf343f29ff",
+                "41f8c8fa-ddc9-4748-ae6d-4dce025d7b82---d751f0b9-ad39-4228-a4ba-49cc0d1c7c48"
             ]
         }
     ]

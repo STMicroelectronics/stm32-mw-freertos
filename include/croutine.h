@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V11.2.0
+ * FreeRTOS Kernel V11.3.1
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -246,7 +246,10 @@ void vCoRoutineSchedule( void );
  * \defgroup crSTART crSTART
  * \ingroup Tasks
  */
+
+/* *INDENT-OFF* */
 #define crEND()    }
+/* *INDENT-ON* */
 
 /*
  * These macros are intended for internal use by the co-routine implementation
@@ -525,7 +528,7 @@ void vCoRoutineSchedule( void );
  * functions used by tasks.
  *
  * crQUEUE_SEND_FROM_ISR() and crQUEUE_RECEIVE_FROM_ISR() can only be used to
- * pass data between a co-routine and and ISR, whereas xQueueSendFromISR() and
+ * pass data between a co-routine and ISR, whereas xQueueSendFromISR() and
  * xQueueReceiveFromISR() can only be used to pass data between a task and and
  * ISR.
  *
@@ -625,7 +628,7 @@ void vCoRoutineSchedule( void );
  * functions used by tasks.
  *
  * crQUEUE_SEND_FROM_ISR() and crQUEUE_RECEIVE_FROM_ISR() can only be used to
- * pass data between a co-routine and and ISR, whereas xQueueSendFromISR() and
+ * pass data between a co-routine and ISR, whereas xQueueSendFromISR() and
  * xQueueReceiveFromISR() can only be used to pass data between a task and and
  * ISR.
  *

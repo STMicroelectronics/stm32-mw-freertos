@@ -1,5 +1,7 @@
 # Middleware FreeRTOS MCU Component
 
+![tag](https://img.shields.io/badge/tag-v10.2.1_20261016-brightgreen.svg)
+
 ## Overview
 
 **STM32Cube** is an STMicroelectronics original initiative to ease the developers life by reducing efforts, time and cost.
@@ -38,7 +40,6 @@ This table shows the correspondence between the MW component version and other c
 In the case of the FreeRTOS, this correspondence is particular to the CMSIS-RTOS V2, the CMSIS-RTOS V1 being compatible with older CMSIS Core versions too.
 
 FreeRTOS | CMSIS Core |
--------- | ---------- |
 Tag v10.0.1 | Tag v5.4.0
 Tag v10.2.1 | Tag v5.4.0
 

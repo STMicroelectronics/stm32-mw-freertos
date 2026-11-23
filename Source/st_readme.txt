@@ -25,6 +25,10 @@
 
 =======
 
+### 16-October-2026 ###
+=========================
+  + Add SW_Security_Level.md file
+
 ### 17-January-2020 ###
 =========================
   + Fix compile error in the GCC CM7_MPU port caused by a duplicated variable declaration
